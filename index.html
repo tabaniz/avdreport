@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> KF 7 | Azure AVD Intelligence - AVD Environment Quick Report</title>
+<title>AVD Intelligence - Quick Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -1075,8 +1075,6 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
             </label>
             <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-left:22px">"This document reflects the environment and observed behaviour at the time of review and is intended for informational and operational reference purposes."</div>
           </div>
-		  
-		  <!-- Key Findings 
           <div class="rb-field" id="rb-field-kf">
             <label class="rb-label">Key Findings</label>
             <div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">
@@ -1085,8 +1083,7 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
               <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-kf-style" value="2" onchange="rbKFChange()"> <span>Option 2 — Metrics-driven</span></label>
             </div>
             <textarea class="rb-input" id="rb-kf-text" placeholder="Select an option above to pre-fill, or type your own..." oninput="rbMarkDirty()" style="min-height:80px;margin-top:6px;display:none"></textarea>
-          </div> -->
-		  
+          </div>
           <div class="rb-field" id="rb-field-fi">
             <label class="rb-label">Future Improvements</label>
             <div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">
@@ -1107,16 +1104,6 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
         </div>
 
         <!-- Sections -->
-        <div class="rb-section" style="flex:1">
-          <div class="rb-section-title">Include Sections</div>
-          <div class="rb-sec-controls">
-            <span class="rb-sec-ctrl ctrl-all" onclick="rbSetAllSec(true)">Select All</span>
-            <span class="rb-sec-ctrl" onclick="rbSetAllSec(false)">None</span>
-            <span class="rb-sec-ctrl ctrl-defaults" onclick="rbSetDefaults()">Defaults</span>
-          </div>
-          <div id="rb-sec-list"></div>
-        </div>
-
         <!-- Live summary -->
         <div class="rb-summary">
           <div class="rb-sum-row"><span class="rb-sum-key">Format</span><span class="rb-sum-val" id="rbs-fmt">—</span></div>
@@ -4218,15 +4205,13 @@ function rbBuildHTMLDoc(){
     // Scope
     if(scope) execProse += '<br><br><strong>Scope:</strong> '+esc(scope);
 
-	  //comemnting below function 
-    /* Closing paragraph
+    // Closing paragraph
     const closingParaEl = document.getElementById('rb-closing-para');
     const showClosingPara = !closingParaEl || closingParaEl.checked;
     const closingParaHtml = showClosingPara
       ? '<p style="font-size:12px;line-height:1.9;color:#1e293b;margin-top:16px">The Azure Virtual Desktop environment described in this document is operating as a stable and supported service, with monitoring and governance controls in place. As usage patterns evolve, the platform is intended to be continuously reviewed and optimised based on operational data, rather than treated as a fixed, point&#8209;in&#8209;time deployment.</p>'
       : '';
-	*/
-	  
+
     // Disclaimer
     const disclaimerEl = document.getElementById('rb-disclaimer');
     const showDisclaimer = !disclaimerEl || disclaimerEl.checked;
@@ -4237,7 +4222,7 @@ function rbBuildHTMLDoc(){
     sections.push(
       sectionHeader(secNum++, '📋', 'Executive Summary', undefined, 'sec-exec') +
       '<p style="font-size:12px;line-height:1.9;color:#1e293b;margin-bottom:16px">'+execProse+'</p>' +
-      //closingParaHtml +
+      closingParaHtml +
       disclaimerHtml
     );
   }
