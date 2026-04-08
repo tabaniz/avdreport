@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 7 | Azure AVD Intelligence - AVD Environment Quick Report</title>
+<title> minor | Azure AVD Intelligence - AVD Environment Quick Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -1075,24 +1075,6 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
             </label>
             <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-left:22px">"This document reflects the environment and observed behaviour at the time of review and is intended for informational and operational reference purposes."</div>
           </div>
-          <div class="rb-field" id="rb-field-kf">
-            <label class="rb-label">Key Findings</label>
-            <div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-kf-style" value="0" checked onchange="rbKFChange()"> <span>None</span></label>
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-kf-style" value="1" onchange="rbKFChange()"> <span>Option 1 — Balanced</span></label>
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-kf-style" value="2" onchange="rbKFChange()"> <span>Option 2 — Metrics-driven</span></label>
-            </div>
-            <textarea class="rb-input" id="rb-kf-text" placeholder="Select an option above to pre-fill, or type your own..." oninput="rbMarkDirty()" style="min-height:80px;margin-top:6px;display:none"></textarea>
-          </div>
-          <div class="rb-field" id="rb-field-fi">
-            <label class="rb-label">Future Improvements</label>
-            <div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-fi-style" value="0" checked onchange="rbFIChange()"> <span>None</span></label>
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-fi-style" value="1" onchange="rbFIChange()"> <span>Option 1 — Practical & reassuring</span></label>
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-fi-style" value="2" onchange="rbFIChange()"> <span>Option 2 — Strategic & roadmap</span></label>
-            </div>
-            <textarea class="rb-input" id="rb-fi-text" placeholder="Select an option above to pre-fill, or type your own..." oninput="rbMarkDirty()" style="min-height:80px;margin-top:6px;display:none"></textarea>
-          </div>
           <div class="rb-field" id="rb-field-scope">
             <label class="rb-label">Document Scope</label>
             <textarea class="rb-input" id="rb-scope" placeholder="e.g. This document covers the Production AVD environment for Contoso Ltd, assessed on [date]. It includes host pool configuration, user access, and operational health." oninput="rbMarkDirty()" style="min-height:64px"></textarea>
@@ -1742,28 +1724,7 @@ function setNavDot(id, colour){
   dot.className='nav-health-dot dot-'+colour;
 }
 
-// ── Navigation ────────────────────────────────────────────────────
-function navTo(view){
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const ni=document.querySelector('[data-view="'+view+'"]');
-  if(ni) ni.classList.add('active');
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const vEl=$('view-'+view);
-  if(vEl){ vEl.classList.add('active'); }
-  ACTIVE_VIEW=view;
-  const fn={
-    overview:renderOverview, hostpools:renderHostPools, scaling:renderScaling,
-    workspaces:renderWorkspaces, appgroups:renderAppGroups, applications:renderApplications,
-    desktops:renderDesktops, sessionhosts:renderSessionHosts, sessions:renderSessions,
-    networking:renderNetworking, rbac:renderRBAC, intelligence:renderIntelligence,
-    fslogix:renderFSLogix, cost:renderCost, rginventory:renderRGInventory
-  };
-  if(fn[view]) fn[view]();
-  // Fire animations after render
-  setTimeout(()=>{
-    if(vEl){ animateKPIs(vEl); animateRings(vEl); staggerRows(vEl); }
-  },40);
-}
+
 
 // ── Flyout ────────────────────────────────────────────────────────
 function openFlyout(title,html){
@@ -3247,26 +3208,6 @@ function renderImageDriftSection(){
   ${arr(e.outlierHosts).length?`<div style="margin-top:6px;font-size:9px;color:var(--text-muted)">Outliers: ${arr(e.outlierHosts).map(h=>`<span class="pill p-red" style="font-size:8px">${esc(h)}</span>`).join(' ')}</div>`:''}</div>`).join('')}</div>`;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// VIEW: FSLOGIX
-// ═══════════════════════════════════════════════════════════════════
-function renderFSLogix(){
-  if(!D){ $('view-fslogix').innerHTML=noData('FSLogix'); return; }
-  const fc=D.fslogixCoverage||{};
-  const met=D.metrics||{};
-  const shs=arr(D.sessionHosts).length?arr(D.sessionHosts):arr(D.hostPools).flatMap(hp=>arr(hp.sessionHosts));
-  const withF=shs.filter(s=>s.fslogixDetected), withoutF=shs.filter(s=>!s.fslogixDetected);
-  const mounts=arr(met.fslogixMountEvents), slowM=arr(met.fslogixSlowMounts);
-  const storageAccounts=arr(fc.storageAccounts);
-  const covPct=fc.coveragePct??0;
-
-  let html=`<div class="section-hdr"><h2>FSLogix</h2><span class="section-sub">Profile container coverage and health</span></div>
-  <div class="kpi-grid g4">
-    <div class="kpi"><div class="kpi-label">Coverage</div><div class="kpi-value kv-${covPct>=80?'green':covPct>=50?'amber':'red'}">${covPct}%</div><div class="kpi-sub">${fc.hostsWithFSLogix||withF.length} of ${fc.totalHosts||shs.length} hosts</div></div>
-    <div class="kpi"><div class="kpi-label">With FSLogix</div><div class="kpi-value kv-green">${fc.hostsWithFSLogix||withF.length}</div></div>
-    <div class="kpi"><div class="kpi-label">Without FSLogix</div><div class="kpi-value kv-${withoutF.length>0?'amber':'green'}">${withoutF.length}</div></div>
-    <div class="kpi"><div class="kpi-label">Slow Mounts (KQL)</div><div class="kpi-value kv-${slowM.length>0?'amber':'green'}">${slowM.length}</div></div>
-  </div>`;
 
   // ── Storage account section ──────────────────────────────────────
   if(storageAccounts.length){
@@ -3579,45 +3520,13 @@ function rbApplyLiveModeUI(){
 }
 
 const RB_EXEC_OPTIONS = {
-  '0': `This document provides an overview of the Azure Virtual Desktop (AVD) environment for [client], collected on [date] and prepared by [engineer].\n\nThe environment has been implemented to provide users with secure, reliable access to their desktops and applications from any supported device. It has been designed with availability, security, and ease of management in mind, with monitoring in place to support day-to-day operations and informed decision-making.\n\nThis document captures the current state of the environment and serves as a reference for operational teams, stakeholders, and future planning activities.`,
-  '1': `This document provides an overview of the Azure Virtual Desktop (AVD) environment implemented for [client]. The platform has been designed to deliver secure, reliable access to applications and desktop services for end users, while providing flexibility to scale in line with business demand.\n\nThe environment has been built in line with Microsoft's recommended practices, with a strong emphasis on security, performance, and operational resilience. User access is centrally managed, session hosts are monitored for health and capacity, and logging has been configured to provide visibility into connection quality, user activity, and system performance.\n\nFrom an end-user perspective, the solution aims to provide a consistent and responsive experience across supported devices, whether accessing full desktops or published applications. From an operational perspective, the environment has been designed to be supportable, observable, and cost-aware, enabling informed decision-making as usage patterns evolve.\n\nThis document was collected on [date] and prepared by [engineer]. It acts as a reference point for the current state of the AVD environment and provides a foundation for ongoing optimisation, governance, and future enhancements.`,
-  '2': `The Azure Virtual Desktop environment described in this document has been implemented to provide staff at [client] with secure and dependable access to their working environments, regardless of location. The solution replaces traditional on-premises approaches with a modern, cloud-based platform that is more flexible and easier to manage.\n\nParticular attention has been given to the user experience, including logon behaviour, session performance, and network connectivity. Monitoring and reporting capabilities are in place to ensure issues can be identified early and addressed proactively, rather than reactively.\n\nFrom an operational standpoint, the environment has been structured to support day-to-day administration, troubleshooting, and capacity planning, while maintaining clear visibility over usage and cost.\n\nThis document was collected on [date] and prepared by [engineer]. The remainder of this document provides further detail on the environment's configuration, usage characteristics, and operational considerations.`,
-  '3': `This document outlines the current Azure Virtual Desktop (AVD) environment for [client] and how it supports secure, scalable delivery of applications and desktop services to users.\n\nThe platform has been implemented using Microsoft-recommended design principles, with controls in place to support security, availability, and performance. Usage monitoring and reporting have been enabled to provide insight into user behaviour, session health, and resource consumption.\n\nThe solution is intended to deliver a reliable experience for users while giving the organisation clear visibility and control over the environment. This document was collected on [date], prepared by [engineer], and serves as both a high-level overview for stakeholders and a reference guide for ongoing operation and future planning.`,
-  '4': `The Azure Virtual Desktop environment for [client] has been established as a managed, enterprise-grade platform for delivering remote desktops and applications. The design prioritises security, consistency, and operational transparency, ensuring the environment can be supported effectively over time.\n\nControls are in place to monitor connection success, session performance, logon behaviour, and host health. These insights enable support teams to identify trends, address performance concerns, and plan capacity with greater confidence.\n\nThis document was collected on [date] and prepared by [engineer]. It provides a clear view of the current state of the environment and is intended to support both technical teams and stakeholders in understanding how the platform is used, how it is monitored, and how it can be improved as requirements evolve.`,
-  '5': `The Azure Virtual Desktop platform described in this document has been implemented for [client] to provide a secure and dependable foundation for remote working. The environment has been designed with reliability and ease of use in mind, whilst maintaining strong security and governance controls.\n\nOngoing monitoring and reporting provide visibility into user activity, system performance, and overall service health. This enables the support team to take an informed, proactive approach to managing the environment and ensuring a consistent experience for users.\n\nThis document was collected on [date] and prepared by [engineer]. It captures the current configuration and operational characteristics of the AVD environment and should be used as a reference when reviewing performance, planning changes, or considering future enhancements.`,
-  '6': `This document describes the Azure Virtual Desktop environment currently in place for [client] and how it supports secure remote access to applications and desktops. The solution has been designed to balance user experience, security, and operational efficiency.\n\nFrom a user perspective, the platform provides consistent access from supported devices, with monitoring in place to track connectivity and performance. From a support perspective, the environment offers clear visibility into usage patterns and system health, enabling issues to be addressed quickly and effectively.\n\nThis document was collected on [date] and prepared by [engineer]. The intention is to provide a clear, shared understanding of how the environment operates today and to serve as a baseline for ongoing optimisation and future development.`
+  '0': `This document provides an overview of the Azure Virtual Desktop (AVD) environment for [client], collected on [date] and prepared by [engineer].\n\nThe environment has been implemented to provide users with secure, reliable access to their desktops and applications from any supported device. It has been designed with availability, security, and ease of management in mind, with monitoring in place to support day-to-day operations and informed decision-making.\n\nThis document captures the current state of the environment and serves as a reference for operational teams, stakeholders, and future planning activities.`
 };
 function rbExecChange(){
   const val = document.querySelector('input[name="rb-exec-style"]:checked')?.value||'0';
   const ta = document.getElementById('rb-exec-text');
   if(!ta) return;
   ta.value = RB_EXEC_OPTIONS[val]||'';
-  rbMarkDirty();
-}
-
-const RB_KF_OPTIONS = {
-  '1': `Based on the current configuration and observed usage of the Azure Virtual Desktop environment, the platform is operating in a stable and controlled manner. Core connection services are functioning as expected, and users are generally able to access their desktops and applications successfully.\n\nMonitoring data shows consistent session behaviour across the environment, with user activity patterns aligning with expected business usage. Session host performance is within acceptable thresholds, and host health indicators suggest that the environment is well‑balanced under current load conditions.\n\nVisibility into user sessions, logon behaviour, and network latency provides a strong foundation for proactive support. The availability of detailed telemetry enables issues to be identified early and addressed before they have a wider impact.\n\nOverall, the environment demonstrates a solid operational baseline, with appropriate controls in place to support day‑to‑day operations and informed decision‑making.`,
-  '2': `The Azure Virtual Desktop environment is currently supporting user workloads effectively, with a high rate of successful connections and no evidence of systemic instability. Session utilisation and user activity remain consistent, indicating that capacity is currently aligned with demand.\n\nPerformance monitoring shows that session hosts are operating within defined parameters, with no sustained CPU or memory pressure observed during typical usage periods. Network latency varies by user location, as expected, but remains within acceptable ranges for most sessions.\n\nLogon behaviour has been analysed using session lifecycle data, providing visibility into average and peak logon times. While some variation is observed between users and hosts, these patterns are consistent with normal operational conditions.\n\nThe environment benefits from clear observability, allowing the support team to correlate user experience with underlying system behaviour.`
-};
-function rbKFChange(){
-  const val = document.querySelector('input[name="rb-kf-style"]:checked')?.value||'0';
-  const ta = document.getElementById('rb-kf-text');
-  if(!ta) return;
-  if(val==='0'){ ta.style.display='none'; ta.value=''; }
-  else { ta.style.display=''; ta.value=RB_KF_OPTIONS[val]||''; }
-  rbMarkDirty();
-}
-
-const RB_FI_OPTIONS = {
-  '1': `While the Azure Virtual Desktop environment is performing well overall, a number of opportunities exist to further enhance its efficiency, resilience, and user experience.\n\nAs usage patterns mature, ongoing review of session host sizing and scaling behaviour may help optimise resource utilisation and cost. Regular trend analysis will support informed decisions around capacity planning as user demand changes over time.\n\nContinued monitoring of logon performance can help identify users or hosts experiencing slower‑than‑expected access, enabling targeted remediation such as profile optimisation or host rebalancing where appropriate.\n\nThe existing reporting and monitoring framework provides a strong platform for continuous improvement. Over time, this data can be used to support performance tuning, improve user experience, and ensure the environment evolves in line with business requirements.`,
-  '2': `The current Azure Virtual Desktop implementation provides a strong baseline; however, further refinement can be achieved through continuous optimisation informed by operational data.\n\nEnhancements may include more granular analysis of user behaviour and performance trends, enabling early identification of emerging capacity or performance constraints. Where appropriate, automation may be introduced to support scaling and routine operational tasks.\n\nLogon performance data can be used to focus improvement efforts on specific hosts or user groups, particularly where slower access times are observed. This may include reviewing profile management practices, host configuration, or session distribution.\n\nAs business needs evolve, the environment can be incrementally adjusted to support new workloads, users, or access patterns, ensuring Azure Virtual Desktop continues to provide a reliable and cost‑effective service.`
-};
-function rbFIChange(){
-  const val = document.querySelector('input[name="rb-fi-style"]:checked')?.value||'0';
-  const ta = document.getElementById('rb-fi-text');
-  if(!ta) return;
-  if(val==='0'){ ta.style.display='none'; ta.value=''; }
-  else { ta.style.display=''; ta.value=RB_FI_OPTIONS[val]||''; }
   rbMarkDirty();
 }
 
@@ -4215,13 +4124,7 @@ function rbBuildHTMLDoc(){
     // Scope
     if(scope) execProse += '<br><br><strong>Scope:</strong> '+esc(scope);
 
-    // Closing paragraph
-    const closingParaEl = document.getElementById('rb-closing-para');
-    const showClosingPara = !closingParaEl || closingParaEl.checked;
-    const closingParaHtml = showClosingPara
-      ? '<p style="font-size:12px;line-height:1.9;color:#1e293b;margin-top:16px">The Azure Virtual Desktop environment described in this document is operating as a stable and supported service, with monitoring and governance controls in place. As usage patterns evolve, the platform is intended to be continuously reviewed and optimised based on operational data, rather than treated as a fixed, point&#8209;in&#8209;time deployment.</p>'
-      : '';
-
+   
     // Disclaimer
     const disclaimerEl = document.getElementById('rb-disclaimer');
     const showDisclaimer = !disclaimerEl || disclaimerEl.checked;
