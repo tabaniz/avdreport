@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> New 4 | Azure AVD Intelligence - AVD Environment Quick Report</title>
+<title>AVD Intelligence - Quick Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -1047,12 +1047,7 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
         <div class="rb-section">
           <div class="rb-section-title">Export Format</div>
           <div class="rb-fmt-strip">
-            <div class="rb-fmt-btn active" id="rbfmt-markdown" onclick="rbSetFmt('markdown')">
-              <span class="rb-fmt-icon">📝</span>
-              <div class="rb-fmt-name">Markdown</div>
-              <div class="rb-fmt-ext">.md</div>
-            </div>
-            <div class="rb-fmt-btn" id="rbfmt-html" onclick="rbSetFmt('html')">
+            <div class="rb-fmt-btn active" id="rbfmt-html" onclick="rbSetFmt('html')">
               <span class="rb-fmt-icon">🌐</span>
               <div class="rb-fmt-name">HTML</div>
               <div class="rb-fmt-ext">.html</div>
@@ -1061,11 +1056,6 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
               <span class="rb-fmt-icon">📄</span>
               <div class="rb-fmt-name">PDF</div>
               <div class="rb-fmt-ext">print</div>
-            </div>
-            <div class="rb-fmt-btn" id="rbfmt-word" onclick="rbSetFmt('word')">
-              <span class="rb-fmt-icon">📘</span>
-              <div class="rb-fmt-name">Word</div>
-              <div class="rb-fmt-ext">.docx</div>
             </div>
           </div>
         </div>
@@ -1084,22 +1074,6 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
               <span class="rb-label" style="margin:0">Include disclaimer</span>
             </label>
             <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-left:22px">"This document reflects the environment and observed behaviour at the time of review and is intended for informational and operational reference purposes."</div>
-            </label>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;font-style:italic">This document reflects the environment and observed behaviour at the time of review and is intended for informational and operational reference purposes.</div>
-          </div>
-          <div class="rb-field" id="rb-field-findings-sentence">
-            <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer">
-              <input type="checkbox" id="rb-findings-sentence" checked onchange="rbMarkDirty()">
-              <span class="rb-label" style="margin:0">Include findings count in executive summary</span>
-            </label>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;font-style:italic">e.g. "X configuration findings were identified — see Configuration Findings section."</div>
-          </div>
-          <div class="rb-field" id="rb-field-closing-para">
-            <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer">
-              <input type="checkbox" id="rb-closing-para" checked onchange="rbMarkDirty()">
-              <span class="rb-label" style="margin:0">Include closing paragraph</span>
-            </label>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;font-style:italic">The Azure Virtual Desktop environment described in this document is operating as a stable and supported service, with monitoring and governance controls in place. As usage patterns evolve, the platform is intended to be continuously reviewed and optimised based on operational data, rather than treated as a fixed, point‑in‑time deployment.</div>
           </div>
           <div class="rb-field" id="rb-field-kf">
             <label class="rb-label">Key Findings</label>
@@ -3473,7 +3447,7 @@ function renderCost(){
 // ═══════════════════════════════════════════════════════════════════
 // REPORT BUILDER — Step 3
 // ═══════════════════════════════════════════════════════════════════
-const RB_DEFAULT_SECTIONS = new Set(['hostpools','workspaces','appgroups','applications','desktops','scaling','sessionhosts']);
+const RB_DEFAULT_SECTIONS = new Set(['hostpools','workspaces','appgroups','applications','desktops','sessionhosts','scaling','rbac','rginventory','networking']);
 const RB_ALL_SECTIONS = [
   {id:'overview',    label:'Overview & Statistics',     icon:'⬛', isDefault:true},
   {id:'workspaces',  label:'Workspaces',                icon:'⊞', isDefault:false},
