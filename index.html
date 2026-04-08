@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 20 claude | Azure AVD Intelligence - Quick Report</title>
+<title> new 20 manual | Azure AVD Intelligence - Quick Report</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -984,7 +984,7 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
             Want <strong style="color:var(--text-primary)">cost analysis</strong>, <strong style="color:var(--text-primary)">security findings</strong>, <strong style="color:var(--text-primary)">FSLogix detection</strong>, <strong style="color:var(--text-primary)">KQL analytics</strong>, and <strong style="color:var(--text-primary)">performance metrics</strong>? 
             Upgrade to the full <strong style="color:var(--cyan)">AVD Intelligence PS1 Collector</strong> for enterprise-grade AVD assessments.
           </div>
-          <a href="https://github.com/tabaniz/avdintelligence" target="_blank" style="display:inline-block;background:var(--cyan);color:#0a0c10;font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:1px;padding:8px 18px;border-radius:4px;text-decoration:none;transition:transform 0.15s">
+		  <a href="https://www.yougoogleit.com" target="_blank" style="display:inline-block;background:var(--cyan);color:#0a0c10;font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:1px;padding:8px 18px;border-radius:4px;text-decoration:none;transition:transform 0.15s">
             🧠 VIEW FULL TOOL →
           </a>
         </div>
@@ -3438,21 +3438,21 @@ function renderCost(){
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// REPORT BUILDER — Step 3
+// REPORT BUILDER — Step 3 | Workspaces → Session Desktops → Host Pools → App Groups → Applications → Session Hosts → Scaling → Networking → RBAC → RG Inventory
 // ═══════════════════════════════════════════════════════════════════
 const RB_DEFAULT_SECTIONS = new Set(['overview','hostpools','workspaces','appgroups','applications','desktops','sessionhosts','scaling','rbac','rginventory','networking']);
 const RB_ALL_SECTIONS = [
   {id:'overview',    label:'Overview & Statistics',     icon:'⬛', isDefault:true},
-  {id:'hostpools',   label:'Host Pools',                icon:'🖥', isDefault:true},
   {id:'workspaces',  label:'Workspaces',                icon:'⊞', isDefault:true},
+  {id:'desktops',    label:'Session Desktops',          icon:'🖵', isDefault:true},
+  {id:'hostpools',   label:'Host Pools',                icon:'🖥', isDefault:true},
   {id:'appgroups',   label:'Application Groups',        icon:'⊡', isDefault:true},
   {id:'applications',label:'Applications',              icon:'🚀', isDefault:true},
-  {id:'desktops',    label:'Session Desktops',          icon:'🖵', isDefault:true},
   {id:'sessionhosts',label:'Session Hosts',             icon:'💻', isDefault:true},
   {id:'scaling',     label:'Scaling Plans',             icon:'⚖', isDefault:true},
+  {id:'networking',  label:'Networking',                icon:'🌐', isDefault:true},
   {id:'rbac',        label:'RBAC Assignments',          icon:'🔑', isDefault:true},
   {id:'rginventory', label:'RG Inventory (Appendix A)', icon:'📋', isDefault:true},
-  {id:'networking',  label:'Networking',                icon:'🌐', isDefault:true},
 ];
 let rbState = { format:'html', sections:new Set(RB_DEFAULT_SECTIONS), dirty:true };
 
@@ -3525,7 +3525,7 @@ function rbSetFmt(fmt){
 function rbToggleSec(id,checked){ if(checked) rbState.sections.add(id); else rbState.sections.delete(id); rbUpdateSummary(); rbMarkDirty(); }
 const LIVE_CONFIG = {
   hiddenSections:     ['fslogix','cost','rdpanalysis','intelligence','sessions'],
-  tickedSections:     ['overview','hostpools','workspaces','appgroups','applications','desktops','sessionhosts','scaling','rbac','rginventory','networking'],
+  tickedSections:     ['overview','workspaces','desktops','hostpools','appgroups','applications','sessionhosts','scaling','networking','rbac','rginventory'],
   hiddenUIFields:     ['rb-field-exec-style','rb-field-findings-sentence','rb-field-closing-para','rb-field-kf','rb-field-fi','rb-field-scope','rb-field-notes'],
   hiddenDocRows:      ['rb-doc-row-env','rb-doc-row-version'],
   skipPatchStatus:    true,
@@ -4166,6 +4166,8 @@ function rbBuildHTMLDoc(){
     if(s.wastedSpendEstimate>0) c++;
     return c;
   })();
+  
+  
   const sections = [];
   let overviewHtml = '';
   let secNum = 1;
@@ -4221,7 +4223,7 @@ function rbBuildHTMLDoc(){
     sections.push(
       sectionHeader(secNum++, '📋', 'Executive Summary', undefined, 'sec-exec') +
       '<p style="font-size:12px;line-height:1.9;color:#1e293b;margin-bottom:16px">'+execProse+'</p>' +
-      closingParaHtml +
+      //closingParaHtml +
       disclaimerHtml
     );
   }
@@ -4248,7 +4250,7 @@ function rbBuildHTMLDoc(){
    // ── 2. OVERVIEW ────────────────────────────────────────────────
   if(sec('overview')){
     const isLive = D?.displayConfig?.isLiveMode===true;
-    let ovHtml = sectionHeader(secNum++, '⬛', 'Infrastructure Overview', `${D?.subscriptionName||sub}`, 'sec-overview', `${D?.subscriptionName||sub}`);
+    let ovHtml = sectionHeader('🏢', 'Infrastructure Overview', `${D?.subscriptionName||sub}`, 'sec-overview', `${D?.subscriptionName||sub}`);
 
     if(isLive){
       const shs=arr(D?.sessionHosts).length?arr(D?.sessionHosts):hps.flatMap(hp=>arr(hp.sessionHosts));
@@ -4345,7 +4347,67 @@ function rbBuildHTMLDoc(){
     overviewHtml = ovHtml; // Store for insertion before TOC
   }
 
-  // ── 3. HOST POOLS ──────────────────────────────────────────────
+	// ── 3. WORKSPACES ─────────────────────────────────────────────
+  if(sec('workspaces') && arr(D?.avdWorkspaces).length){
+    const wss=arr(D.avdWorkspaces);
+    let wsHtml = sectionHeader(secNum++, '⊞', 'Workspaces', `${wss.length} workspace${wss.length!==1?'s':''}`, 'sec-workspaces', `${wss.length} workspace${wss.length!==1?'s':''}`);
+    wss.forEach(ws=>{
+      const wsAgs=ags.filter(ag=>ag.workspaceId===ws.id||ag.workspaceName===ws.name);
+      wsHtml+=`<div style="margin:16px 0 8px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;border-left:4px solid #a855f7">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-size:16px">⊞</span>
+          <span style="font-family:'Segoe UI',sans-serif;font-weight:700;font-size:14px;color:#0d1117">${esc(ws.name)}</span>
+          ${ws.diagnosticsEnabled?pill('Diagnostics','green'):pill('No Diagnostics','amber')}
+          <span style="font-size:11px;color:#94a3b8;margin-left:auto">${wsAgs.length} app group${wsAgs.length!==1?'s':''}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#475569">
+          ${ws.friendlyName&&ws.friendlyName!==ws.name?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">FRIENDLY NAME</span><br>${esc(ws.friendlyName)}</div>`:''}
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE GROUP</span><br>${esc(ws.resourceGroup||'—')}</div>
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">LOCATION</span><br>${esc(ws.location||'—')}</div>
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">DIAGNOSTICS</span><br>${ws.diagnosticsEnabled?'<span style="color:#059669">Enabled</span>':'<span style="color:#d97706">Not Configured</span>'}</div>
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">APP GROUPS</span><br>${wsAgs.length} linked</div>
+          ${ws.description?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">DESCRIPTION</span><br>${esc(ws.description)}</div>`:''}
+          ${Object.keys(ws.tags||{}).length?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">TAGS</span><br>${Object.entries(ws.tags).map(([k,v])=>`<code style="background:#e2e8f0;padding:1px 5px;border-radius:2px;font-size:9px">${esc(k)}: ${esc(v)}</code>`).join(' ')}</div>`:''}
+          <div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE ID</span><br><code style="font-size:9px;color:#0055aa;word-break:break-all">${esc(ws.id||'—')}</code></div>
+        </div>
+        ${wsAgs.length?docTable(['App Group','Type','Host Pool'],wsAgs.map(ag=>[esc(ag.name||'—'),pill(ag.applicationGroupType||'—',ag.applicationGroupType==='Desktop'?'blue':'purple'),esc(ag.hostPoolName||'—')])):''}
+      </div>`;
+    });
+    sections.push(wsHtml);
+  }
+  
+	  // ── 4. SESSION DESKTOPS ──────────────────────────────────────── 
+  const deskAgsR=ags.filter(g=>g.applicationGroupType==='Desktop');
+  if(sec('desktops')&&deskAgsR.length){
+    let deskHtml=sectionHeader(secNum++,'🖵','Session Desktops',`${deskAgsR.length} desktop${deskAgsR.length!==1?'s':''}`, 'sec-desktops', `${deskAgsR.length} desktop${deskAgsR.length!==1?'s':''}`);
+    deskAgsR.forEach(ag=>{
+      const allA=[...arr(ag.assignedUsers),...arr(ag.assignedGroups)];
+      const stdRole='Desktop Virtualization User';
+      deskHtml+=`<div style="margin:16px 0 8px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;border-left:4px solid #059669">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-size:16px">🖵</span>
+          <span style="font-family:'Segoe UI',sans-serif;font-weight:700;font-size:14px;color:#0d1117">${esc(ag.name)}</span>
+          ${pill('Desktop','blue')}
+          ${ag.showInPortal!==false?pill('Portal Visible','green'):pill('Hidden','gray')}
+          <span style="font-size:11px;color:#94a3b8;margin-left:auto">${allA.length} assigned</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#475569">
+          ${ag.friendlyName&&ag.friendlyName!==ag.name?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">FRIENDLY NAME</span><br>${esc(ag.friendlyName)}</div>`:''}
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">WORKSPACE</span><br>${esc(ag.workspaceFriendlyName||ag.workspaceName||'—')}</div>
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">HOST POOL</span><br>${esc(ag.hostPoolName||'—')}</div>
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE GROUP</span><br>${esc(ag.resourceGroup||'—')}</div>
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">LOCATION</span><br>${esc(ag.location||'—')}</div>
+          ${ag.description?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">DESCRIPTION</span><br>${esc(ag.description)}</div>`:''}
+          ${Object.keys(ag.tags||{}).length?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">TAGS</span><br>${Object.entries(ag.tags).map(([k,v])=>`<code style="background:#e2e8f0;padding:1px 5px;border-radius:2px;font-size:9px">${esc(k)}: ${esc(v)}</code>`).join(' ')}</div>`:''}
+          <div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE ID</span><br><code style="font-size:9px;color:#0055aa;word-break:break-all">${esc(ag.id||'—')}</code></div>
+        </div>
+        ${allA.length?docTable(['Principal','Type'],allA.map(a=>{const nonStd=a.role&&a.role!==stdRole?` <span style="background:#fef3c7;color:#92400e;font-size:9px;padding:1px 4px;border-radius:3px">${esc(a.role)}</span>`:'';return[esc(a.displayName||a.signInName||a.objectId||'—')+nonStd,pill(a.objectType||'—',a.objectType==='Group'?'cyan':'gray')];})):'<p style="font-size:11px;color:#94a3b8">No assignments</p>'}
+      </div>`;
+    });
+    sections.push(deskHtml);
+  }
+  
+  // ── 5. HOST POOLS ──────────────────────────────────────────────
   if(sec('hostpools') && hps.length){
     let hpHtml = sectionHeader(secNum++, '🖥', 'Host Pools', `${hps.length} pool${hps.length!==1?'s':''}`, 'sec-hostpools', `${hps.length} pool${hps.length!==1?'s':''}`);
     hpHtml += kpiRow(
@@ -4391,79 +4453,6 @@ function rbBuildHTMLDoc(){
     sections.push(hpHtml);
   }
 
-  // ── 4. SCALING PLANS ──────────────────────────────────────────
-  if(sec('scaling') && arr(D?.scalingPlans).length){
-    const sps=arr(D.scalingPlans);
-    let spHtml = sectionHeader(secNum++, '⚖', 'Scaling Plans', `${sps.length} plan${sps.length!==1?'s':''}`, 'sec-scaling', `${sps.length} plan${sps.length!==1?'s':''}`);
-    sps.forEach(sp=>{
-      const spTags=Object.entries(sp.tags||{});
-      const spHPs=arr(sp.hostPoolReferences).map(r=>r.hostPoolId.split('/').pop()).filter(Boolean);
-      spHtml += `<div style="margin:16px 0 8px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;border-left:4px solid #d97706">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <span style="font-size:16px">⚖</span>
-          <span style="font-family:'Segoe UI',sans-serif;font-weight:700;font-size:14px;color:#0d1117">${esc(sp.name)}</span>
-          ${pill(sp.hostPoolType||'Pooled', sp.hostPoolType==='Pooled'?'cyan':'purple')}
-          <span style="font-size:11px;color:#94a3b8;margin-left:auto">${spHPs.length} host pool${spHPs.length!==1?'s':''}</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#475569">
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE GROUP</span><br>${esc(sp.resourceGroup||'—')}</div>
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">LOCATION</span><br>${esc(sp.location||'—')}</div>
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">TIME ZONE</span><br>${esc(sp.timezone||'—')}</div>
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">SCHEDULES</span><br>${arr(sp.schedules).length} configured</div>
-          ${sp.exclusionTag?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">EXCLUSION TAG</span><br><code style="background:#e2e8f0;padding:1px 5px;border-radius:2px;font-size:9px">${esc(sp.exclusionTag)}</code></div>`:''}
-          ${spHPs.length?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">HOST POOLS</span><br>${spHPs.map(n=>`<span style="background:#e0f9ff;color:#00a8cc;border-radius:3px;padding:2px 8px;font-size:10px;font-family:'Courier New',monospace;margin-right:4px">${esc(n)}</span>`).join('')}</div>`:''}
-          ${spTags.length?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">TAGS</span><br>${spTags.map(([k,v])=>`<code style="background:#e2e8f0;padding:1px 5px;border-radius:2px;font-size:9px">${esc(k)}: ${esc(v)}</code>`).join(' ')}</div>`:''}
-          ${sp.id?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE ID</span><br><code style="font-size:9px;color:#0055aa;word-break:break-all">${esc(sp.id)}</code></div>`:''}
-        </div>`;
-      arr(sp.schedules).forEach(sc=>{
-        spHtml += `<div style="margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0">
-          <p style="font-size:11px;color:#475569;margin-bottom:6px;font-weight:600">${esc(sc.name)} — ${arr(sc.daysOfWeek).join(', ')||'—'}</p>`;
-        spHtml += docTable(
-          ['Phase','Start Time','Algorithm','Min Hosts','Capacity Threshold'],
-          [
-            ['Ramp-Up', sc.rampUpStartTime||'—', sc.rampUpLoadAlgorithm||'—', (sc.rampUpMinimumHostsPct??'—')+'%', (sc.rampUpCapacityThresholdPct??'—')+'%'],
-            ['Peak',     sc.peakStartTime||'—',     sc.peakLoadAlgorithm||'—',     '—','—'],
-            ['Ramp-Down',sc.rampDownStartTime||'—', sc.rampDownLoadAlgorithm||'—', (sc.rampDownMinimumHostsPct??'—')+'%','—'],
-            ['Off-Peak', sc.offPeakStartTime||'—',  sc.offPeakLoadAlgorithm||'—',  '—','—'],
-          ]
-        );
-        if(sc.rampDownNotificationMessage) spHtml += `<p style="font-size:10px;color:#64748b;font-style:italic;margin:4px 0 0">Notification: ${esc(sc.rampDownNotificationMessage)}</p>`;
-        spHtml += `</div>`;
-      });
-      spHtml += '</div>';
-    });
-    sections.push(spHtml);
-  }
-
-  // ── 5. WORKSPACES ─────────────────────────────────────────────
-  if(sec('workspaces') && arr(D?.avdWorkspaces).length){
-    const wss=arr(D.avdWorkspaces);
-    let wsHtml = sectionHeader(secNum++, '⊞', 'Workspaces', `${wss.length} workspace${wss.length!==1?'s':''}`, 'sec-workspaces', `${wss.length} workspace${wss.length!==1?'s':''}`);
-    wss.forEach(ws=>{
-      const wsAgs=ags.filter(ag=>ag.workspaceId===ws.id||ag.workspaceName===ws.name);
-      wsHtml+=`<div style="margin:16px 0 8px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;border-left:4px solid #a855f7">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <span style="font-size:16px">⊞</span>
-          <span style="font-family:'Segoe UI',sans-serif;font-weight:700;font-size:14px;color:#0d1117">${esc(ws.name)}</span>
-          ${ws.diagnosticsEnabled?pill('Diagnostics','green'):pill('No Diagnostics','amber')}
-          <span style="font-size:11px;color:#94a3b8;margin-left:auto">${wsAgs.length} app group${wsAgs.length!==1?'s':''}</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#475569">
-          ${ws.friendlyName&&ws.friendlyName!==ws.name?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">FRIENDLY NAME</span><br>${esc(ws.friendlyName)}</div>`:''}
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE GROUP</span><br>${esc(ws.resourceGroup||'—')}</div>
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">LOCATION</span><br>${esc(ws.location||'—')}</div>
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">DIAGNOSTICS</span><br>${ws.diagnosticsEnabled?'<span style="color:#059669">Enabled</span>':'<span style="color:#d97706">Not Configured</span>'}</div>
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">APP GROUPS</span><br>${wsAgs.length} linked</div>
-          ${ws.description?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">DESCRIPTION</span><br>${esc(ws.description)}</div>`:''}
-          ${Object.keys(ws.tags||{}).length?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">TAGS</span><br>${Object.entries(ws.tags).map(([k,v])=>`<code style="background:#e2e8f0;padding:1px 5px;border-radius:2px;font-size:9px">${esc(k)}: ${esc(v)}</code>`).join(' ')}</div>`:''}
-          <div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE ID</span><br><code style="font-size:9px;color:#0055aa;word-break:break-all">${esc(ws.id||'—')}</code></div>
-        </div>
-        ${wsAgs.length?docTable(['App Group','Type','Host Pool'],wsAgs.map(ag=>[esc(ag.name||'—'),pill(ag.applicationGroupType||'—',ag.applicationGroupType==='Desktop'?'blue':'purple'),esc(ag.hostPoolName||'—')])):''}
-      </div>`;
-    });
-    sections.push(wsHtml);
-  }
-
   // ── 6. APP GROUPS ─────────────────────────────────────────────
   if(sec('appgroups') && ags.length){
     let agHtml = sectionHeader(secNum++, '⊡', 'Application Groups', `${ags.length} group${ags.length!==1?'s':''}`, 'sec-appgroups', `${ags.length} group${ags.length!==1?'s':''}`);
@@ -4497,7 +4486,7 @@ function rbBuildHTMLDoc(){
     sections.push(agHtml);
   }
 
-  // ── 6b. APPLICATIONS (Published RemoteApps) ─────────────────
+  // ── 7. APPLICATIONS (Published RemoteApps) ─────────────────
   if(sec('applications')){
     const allApps=ags.filter(g=>g.applicationGroupType==='RemoteApp').flatMap(g=>arr(g.remoteApps).map(a=>({...a,agName:g.name,agHostPool:g.hostPoolName})));
     if(allApps.length){
@@ -4516,38 +4505,7 @@ function rbBuildHTMLDoc(){
     }
   }
 
-  // ── 6c. SESSION DESKTOPS ────────────────────────────────────────
-  const deskAgsR=ags.filter(g=>g.applicationGroupType==='Desktop');
-  if(sec('desktops')&&deskAgsR.length){
-    let deskHtml=sectionHeader(secNum++,'🖵','Session Desktops',`${deskAgsR.length} desktop${deskAgsR.length!==1?'s':''}`, 'sec-desktops', `${deskAgsR.length} desktop${deskAgsR.length!==1?'s':''}`);
-    deskAgsR.forEach(ag=>{
-      const allA=[...arr(ag.assignedUsers),...arr(ag.assignedGroups)];
-      const stdRole='Desktop Virtualization User';
-      deskHtml+=`<div style="margin:16px 0 8px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;border-left:4px solid #059669">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <span style="font-size:16px">🖵</span>
-          <span style="font-family:'Segoe UI',sans-serif;font-weight:700;font-size:14px;color:#0d1117">${esc(ag.name)}</span>
-          ${pill('Desktop','blue')}
-          ${ag.showInPortal!==false?pill('Portal Visible','green'):pill('Hidden','gray')}
-          <span style="font-size:11px;color:#94a3b8;margin-left:auto">${allA.length} assigned</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#475569">
-          ${ag.friendlyName&&ag.friendlyName!==ag.name?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">FRIENDLY NAME</span><br>${esc(ag.friendlyName)}</div>`:''}
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">WORKSPACE</span><br>${esc(ag.workspaceFriendlyName||ag.workspaceName||'—')}</div>
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">HOST POOL</span><br>${esc(ag.hostPoolName||'—')}</div>
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE GROUP</span><br>${esc(ag.resourceGroup||'—')}</div>
-          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">LOCATION</span><br>${esc(ag.location||'—')}</div>
-          ${ag.description?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">DESCRIPTION</span><br>${esc(ag.description)}</div>`:''}
-          ${Object.keys(ag.tags||{}).length?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">TAGS</span><br>${Object.entries(ag.tags).map(([k,v])=>`<code style="background:#e2e8f0;padding:1px 5px;border-radius:2px;font-size:9px">${esc(k)}: ${esc(v)}</code>`).join(' ')}</div>`:''}
-          <div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE ID</span><br><code style="font-size:9px;color:#0055aa;word-break:break-all">${esc(ag.id||'—')}</code></div>
-        </div>
-        ${allA.length?docTable(['Principal','Type'],allA.map(a=>{const nonStd=a.role&&a.role!==stdRole?` <span style="background:#fef3c7;color:#92400e;font-size:9px;padding:1px 4px;border-radius:3px">${esc(a.role)}</span>`:'';return[esc(a.displayName||a.signInName||a.objectId||'—')+nonStd,pill(a.objectType||'—',a.objectType==='Group'?'cyan':'gray')];})):'<p style="font-size:11px;color:#94a3b8">No assignments</p>'}
-      </div>`;
-    });
-    sections.push(deskHtml);
-  }
-
-  // ── 7. SESSION HOSTS ──────────────────────────────────────────
+  // ── 8. SESSION HOSTS ──────────────────────────────────────────
   if(sec('sessionhosts') && shs.length){
     const avail=shs.filter(s=>s.status==='Available').length;
     const unavail=shs.filter(s=>s.status==='Unavailable').length;
@@ -4645,56 +4603,52 @@ function rbBuildHTMLDoc(){
     }
     sections.push(shHtml);
   }
-
-  // ── 8. USER SESSIONS ──────────────────────────────────────────
-  if(sec('sessions') && sessions.length){
-    const active=sessions.filter(s=>s.sessionState==='Active');
-    const disc=sessions.filter(s=>s.sessionState==='Disconnected');
-    let sessHtml = sectionHeader(secNum++, '👤', 'User Sessions', `${sessions.length} session${sessions.length!==1?'s':''}`, 'sec-sessions', `${sessions.length} session${sessions.length!==1?'s':''}`);
-    sessHtml += kpiRow(
-      kpiBox('Total Sessions', sessions.length, '', 'cyan'),
-      kpiBox('Active', active.length, 'connected users', 'green'),
-      kpiBox('Disconnected', disc.length, 'idle sessions', disc.length>0?'amber':'green'),
-      kpiBox('Unique Users', new Set(sessions.map(s=>s.userPrincipalName).filter(Boolean)).size, '', 'blue')
-    );
-    sessHtml += docTable(
-      ['User','State','Session Host','Host Pool','Type','Connected Since'],
-      sessions.map(s=>[esc(s.userPrincipalName||'Unknown'), pill(s.sessionState||'—',s.sessionState==='Active'?'green':'amber'), esc((s.sessionHostName||'—').split('.')[0]), esc(s.hostPoolName||'—'), pill(s.applicationType||'Desktop',s.applicationType==='Desktop'?'blue':'purple'), esc(s.createTime||'—')])
-    );
-    sections.push(sessHtml);
+  
+  // ── 9. SCALING PLANS ──────────────────────────────────────────
+  if(sec('scaling') && arr(D?.scalingPlans).length){
+    const sps=arr(D.scalingPlans);
+    let spHtml = sectionHeader(secNum++, '⚖', 'Scaling Plans', `${sps.length} plan${sps.length!==1?'s':''}`, 'sec-scaling', `${sps.length} plan${sps.length!==1?'s':''}`);
+    sps.forEach(sp=>{
+      const spTags=Object.entries(sp.tags||{});
+      const spHPs=arr(sp.hostPoolReferences).map(r=>r.hostPoolId.split('/').pop()).filter(Boolean);
+      spHtml += `<div style="margin:16px 0 8px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;border-left:4px solid #d97706">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-size:16px">⚖</span>
+          <span style="font-family:'Segoe UI',sans-serif;font-weight:700;font-size:14px;color:#0d1117">${esc(sp.name)}</span>
+          ${pill(sp.hostPoolType||'Pooled', sp.hostPoolType==='Pooled'?'cyan':'purple')}
+          <span style="font-size:11px;color:#94a3b8;margin-left:auto">${spHPs.length} host pool${spHPs.length!==1?'s':''}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#475569">
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE GROUP</span><br>${esc(sp.resourceGroup||'—')}</div>
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">LOCATION</span><br>${esc(sp.location||'—')}</div>
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">TIME ZONE</span><br>${esc(sp.timezone||'—')}</div>
+          <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">SCHEDULES</span><br>${arr(sp.schedules).length} configured</div>
+          ${sp.exclusionTag?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">EXCLUSION TAG</span><br><code style="background:#e2e8f0;padding:1px 5px;border-radius:2px;font-size:9px">${esc(sp.exclusionTag)}</code></div>`:''}
+          ${spHPs.length?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">HOST POOLS</span><br>${spHPs.map(n=>`<span style="background:#e0f9ff;color:#00a8cc;border-radius:3px;padding:2px 8px;font-size:10px;font-family:'Courier New',monospace;margin-right:4px">${esc(n)}</span>`).join('')}</div>`:''}
+          ${spTags.length?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">TAGS</span><br>${spTags.map(([k,v])=>`<code style="background:#e2e8f0;padding:1px 5px;border-radius:2px;font-size:9px">${esc(k)}: ${esc(v)}</code>`).join(' ')}</div>`:''}
+          ${sp.id?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">RESOURCE ID</span><br><code style="font-size:9px;color:#0055aa;word-break:break-all">${esc(sp.id)}</code></div>`:''}
+        </div>`;
+      arr(sp.schedules).forEach(sc=>{
+        spHtml += `<div style="margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0">
+          <p style="font-size:11px;color:#475569;margin-bottom:6px;font-weight:600">${esc(sc.name)} — ${arr(sc.daysOfWeek).join(', ')||'—'}</p>`;
+        spHtml += docTable(
+          ['Phase','Start Time','Algorithm','Min Hosts','Capacity Threshold'],
+          [
+            ['Ramp-Up', sc.rampUpStartTime||'—', sc.rampUpLoadAlgorithm||'—', (sc.rampUpMinimumHostsPct??'—')+'%', (sc.rampUpCapacityThresholdPct??'—')+'%'],
+            ['Peak',     sc.peakStartTime||'—',     sc.peakLoadAlgorithm||'—',     '—','—'],
+            ['Ramp-Down',sc.rampDownStartTime||'—', sc.rampDownLoadAlgorithm||'—', (sc.rampDownMinimumHostsPct??'—')+'%','—'],
+            ['Off-Peak', sc.offPeakStartTime||'—',  sc.offPeakLoadAlgorithm||'—',  '—','—'],
+          ]
+        );
+        if(sc.rampDownNotificationMessage) spHtml += `<p style="font-size:10px;color:#64748b;font-style:italic;margin:4px 0 0">Notification: ${esc(sc.rampDownNotificationMessage)}</p>`;
+        spHtml += `</div>`;
+      });
+      spHtml += '</div>';
+    });
+    sections.push(spHtml);
   }
 
-
-  // ── 12. COST ──────────────────────────────────────────────────
-  if(sec('cost') && s.costAvailable){
-    const hpCosts=hps.filter(hp=>hp.currentMonthCost!=null).sort((a,b)=>b.currentMonthCost-a.currentMonthCost);
-    let costHtml = sectionHeader(secNum++, '💰', 'Cost & FinOps', 'Month-to-Date', 'sec-cost');
-    costHtml += kpiRow(
-      kpiBox('Previous Month', s.previousMonthCost!=null?`${cur} ${s.previousMonthCost.toFixed(0)}`:'—', s.previousMonthFrom&&s.previousMonthTo?`${s.previousMonthFrom} → ${s.previousMonthTo}`:'not collected', 'gray'),
-      kpiBox('This Month MTD', `${cur} ${s.currentMonthCost?.toFixed(0)||'—'}`, s.currentMonthFrom&&s.currentMonthTo?`${s.currentMonthFrom} → ${s.currentMonthTo}`:'month to date', 'cyan'),
-      kpiBox('Projected EOM', proj?`${cur} ${proj.toFixed(0)}`:'—', 'estimate based on run rate', 'amber'),
-      kpiBox('Wasted Spend', s.wastedSpendEstimate?`${cur} ${s.wastedSpendEstimate.toFixed(0)}`:'—', `${s.wastedSpendHosts||0} idle/drain hosts`, s.wastedSpendEstimate>0?'amber':'green')
-    );
-    if(s.previousMonthCost!=null && proj!=null){
-      const delta=proj-s.previousMonthCost, pct=Math.round((delta/s.previousMonthCost)*100);
-      const dcolour=delta>0?'#dc2626':'#059669';
-      costHtml += `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;display:flex;align-items:center;gap:12px">
-        <span style="font-size:20px">${delta>0?'↑':'↓'}</span>
-        <span><strong style="color:${dcolour}">${delta>0?'+':''}${cur} ${Math.abs(delta).toFixed(2)} (${delta>0?'+':''}${pct}%)</strong> vs last month</span>
-        <span style="color:#94a3b8;font-size:11px;margin-left:auto">Projection = (MTD ÷ days elapsed) × days in month</span>
-      </div>`;
-    }
-    if(hpCosts.length){
-      costHtml += `<p style="font-weight:700;font-size:12px;margin-bottom:8px;color:#0d1117">Cost by Host Pool</p>`;
-      costHtml += docTable(
-        ['Host Pool','Cost MTD','% of Total'],
-        hpCosts.map(hp=>[esc(hp.name), `${cur} ${hp.currentMonthCost.toFixed(2)}`, Math.round((hp.currentMonthCost/(s.currentMonthCost||1))*100)+'%'])
-      );
-    }
-    sections.push(costHtml);
-  }
-
-  // ── 10. NETWORKING ────────────────────────────────────────────
+	// ── 10. NETWORKING ────────────────────────────────────────────
   if(sec('networking') && hps.length){
     const net = D?.networking||null;
     let netHtml = sectionHeader(secNum++, '🌐', 'Networking Configuration', undefined, 'sec-networking');
@@ -4764,57 +4718,7 @@ function rbBuildHTMLDoc(){
     sections.push(netHtml);
   }
 
-  // ── 11. FSLOGIX ───────────────────────────────────────────────
-  if(sec('fslogix')){
-    const fc=D?.fslogixCoverage||{};
-    const covPct=fc.coveragePct??0;
-    const sas=arr(fc.storageAccounts);
-    let fslHtml = sectionHeader(secNum++, '📦', 'FSLogix Profile Containers', undefined, 'sec-fslogix');
-    fslHtml += kpiRow(
-      kpiBox('Coverage', covPct+'%', `${fc.hostsWithFSLogix||0} of ${fc.totalHosts||shs.length} hosts`, covPct>=80?'green':covPct>=50?'amber':'red'),
-      kpiBox('With FSLogix', fc.hostsWithFSLogix||0, '', 'green'),
-      kpiBox('Without FSLogix', arr(fc.hostsWithout).length||0, 'needs attention', arr(fc.hostsWithout).length>0?'amber':'green'),
-      kpiBox('Slow Mounts', arr(D?.metrics?.fslogixSlowMounts).length||0, 'hosts affected', arr(D?.metrics?.fslogixSlowMounts).length>0?'amber':'green')
-    );
-    if(arr(fc.hostsWithout).length){
-      fslHtml += `<div style="background:#fef9c3;border-left:4px solid #ca8a04;border-radius:0 4px 4px 0;padding:8px 12px;margin-bottom:10px;font-size:11px"><strong>Hosts without FSLogix:</strong> ${arr(fc.hostsWithout).map(h=>`<code style="background:#fef3c7;padding:1px 5px;border-radius:2px">${esc(h)}</code>`).join(' ')}</div>`;
-    }
-    if(fc.fslogixCoverageNote) fslHtml += `<p style="font-size:11px;color:#64748b;font-style:italic">${esc(fc.fslogixCoverageNote)}</p>`;
-    if(sas.length){
-      fslHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Profile Storage Accounts (${sas.length})</p>`;
-      sas.forEach(sa=>{
-        const shares=arr(sa.shares);
-        fslHtml += `<div style="margin-bottom:12px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="font-weight:700;font-size:12px">${esc(sa.storageAccount)}</span>
-            <span style="font-size:10px;color:#64748b">${esc(sa.sku||'—')}</span>
-            <span style="font-size:10px;color:#94a3b8;margin-left:auto">${esc(sa.resourceGroup||'—')} · ${esc(sa.location||'—')}</span>
-          </div>
-          ${sa.storageAccountUrl?`<p style="font-size:10px;margin-bottom:8px"><b>Storage URL:</b> <code style="font-size:9px;color:#0055aa">${esc(sa.storageAccountUrl)}</code></p>`:''}
-          ${shares.length?docTable(
-            ['Share Name','Quota (GiB)','Used (GiB)','Utilisation','Tier','Share URL'],
-            shares.map(sh=>{
-              const hasQ=sh.quotaGiB>0;
-              const pct=hasQ?Math.round((sh.usedGiB/sh.quotaGiB)*100):null;
-              const col=pct==null?'#64748b':pct>85?'#dc2626':pct>65?'#d97706':'#059669';
-              return[
-                `<code style="font-size:10px">${esc(sh.name||'—')}</code>`,
-                hasQ?sh.quotaGiB:'No quota',
-                sh.usedGiB??'—',
-                pct!=null?`<span style="color:${col}">${pct}%</span>`:'—',
-                esc(sh.tier||'—'),
-                sh.shareUrl?`<code style="font-size:9px;color:#0055aa">${esc(sh.shareUrl)}</code>`:'—'
-              ];
-            })
-          ):'<p style="font-size:11px;color:#94a3b8">No shares found.</p>'}
-        </div>`;
-      });
-    }
-    sections.push(fslHtml);
-  }
-
-
-  // ── 9. RBAC ───────────────────────────────────────────────────
+	// ── 11. RBAC ───────────────────────────────────────────────────
   if(sec('rbac')){
     const all=ags.flatMap(ag=>[...arr(ag.assignedUsers),...arr(ag.assignedGroups)].map(a=>({...a,scope:ag.name})));
     if(all.length){
@@ -4836,67 +4740,9 @@ function rbBuildHTMLDoc(){
       sections.push(rbacHtml);
     }
   }
-
-  // ── 13. AVD DIAGNOSTICS & INSIGHTS COVERAGE ──────────────────
-
-    if(sec('intelligence')){
-    const met=D?.metrics||{};
-    const insSum=getInsightsSummary(prodHps);
-    let intHtml = sectionHeader(secNum++, '🔍', 'AVD Diagnostics & Insights Coverage', `${prodHps.length} prod host pool${prodHps.length!==1?'s':''}${diagNote}`, 'sec-intelligence');
-    // Summary KPIs
-    const diagComplete=insSum.complete, diagPartial=insSum.partial, diagNone=insSum.disabled;
-    intHtml += kpiRow(
-      kpiBox('Full Coverage', diagComplete, `all ${AVD_REQUIRED_CATEGORIES.length} categories enabled`, diagComplete===hps.length?'green':'amber'),
-      kpiBox('Partial Coverage', diagPartial, 'missing some categories', diagPartial>0?'amber':'green'),
-      kpiBox('Not Configured', diagNone, 'no diagnostics at all', diagNone>0?'red':'green'),
-      kpiBox('KQL Queries Ran', arr(met.queriesRun).length, met.querySupported?`${met.timespanDays||1}d window`:'No workspace', met.querySupported?'cyan':'amber')
-    );
-    // Per-host-pool diagnostics table
-    intHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Diagnostic Settings per Host Pool</p>`;
-    intHtml += docTable(
-      ['Host Pool','Diagnostics','Log Analytics Workspace','Categories Enabled','Missing Categories'],
-      insSum.details.map(r=>{
-        const ws=arr(arr(hps.find(hp=>hp.name===r.name)?.diagnosticSettings||[])).map(ds=>ds.workspaceName||'—').filter((v,i,a)=>a.indexOf(v)===i).join(', ')||'—';
-        const enabled=r.categories.join(', ')||'—';
-        const missing=r.missing.length?r.missing.map(c=>`<span style="color:#dc2626;font-size:9px">${esc(c)}</span>`).join(' '):'<span style="color:#059669">✓ All present</span>';
-        const status=r.complete?'<span style="color:#059669">✓ Complete</span>':r.enabled?'<span style="color:#d97706">⚑ Partial</span>':'<span style="color:#dc2626">✗ Not configured</span>';
-        return [esc(r.name), status, `<span style="font-size:9px">${esc(ws)}</span>`, `<span style="font-size:9px">${esc(enabled)}</span>`, missing];
-      })
-    );
-    // Required categories reference
-    intHtml += `<p style="font-size:10px;color:#64748b;margin-top:10px"><strong>Required categories for full AVD Insights:</strong> ${AVD_REQUIRED_CATEGORIES.map(c=>`<code style="font-size:9px;background:#f1f5f9;padding:1px 4px;border-radius:2px">${c}</code>`).join(' ')}</p>`;
-    // KQL summary if data available
-    if(met.querySupported && met.connectionSuccessRate!=null){
-      intHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">KQL Analytics Summary</p>`;
-      intHtml += docTable(['Metric','Value'],[
-        ['Connection Success Rate', met.connectionSuccessRate!=null?met.connectionSuccessRate+'%':'—'],
-        ['Queries Executed', arr(met.queriesRun).length+' of 19 configured'],
-        ['Window', (met.timespanDays||1)+' day(s)'],
-        ['Workspace ID', esc(met.workspaceId||'—')]
-      ]);
-    }
-    // Q5 — Top active users by hours
-    const rptQ5 = arr(met.Q5_rows);
-    if(rptQ5.length){
-      intHtml += '<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Top Active Users by Hours (7 days)</p>';
-      intHtml += docTable(['User','Total Hours','Sessions'],rptQ5.map(function(r){ return [esc(r.UserName||'—'),r.TotalHours??'—',r.Sessions??'—']; }));
-    }
-    // Q9 — Weekly hours per user
-    const rptQ9 = arr(met.Q9_rows).filter(function(r){ return r&&r.UserName; });
-    if(rptQ9.length){
-      intHtml += '<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Weekly Hours per User</p>';
-      intHtml += docTable(['User','Total Hours','Sessions','Avg Session Hours'],rptQ9.map(function(r){ return [esc(r.UserName||'—'),r.TotalHours??'—',r.Sessions??'—',r.AvgSessionHours??'—']; }));
-    }
-    // Q8 — User retention & churn
-    const rptQ8 = arr(met.Q8_rows).filter(function(r){ return r&&r.ThisWeekUsers!=null; });
-    if(rptQ8.length){
-      intHtml += '<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">User Retention &amp; Growth (WoW)</p>';
-      intHtml += docTable(['Trend','This Week','Last Week','Growth Rate','New','Returning','Lost'],rptQ8.map(function(r){ return [esc(r.Trend||'—'),r.ThisWeekUsers??'—',r.LastWeekUsers??'—',esc(r.GrowthRate||'—'),r.NewUsers??'—',r.ReturningUsers??'—',r.LostUsers??'—']; }));
-    }
-    sections.push(intHtml);
-  }
-
-  // ── 14. RG INVENTORY APPENDIX ────────────────────────────────
+  
+  
+	  // ── 14. RG INVENTORY APPENDIX ────────────────────────────────
   const rgsData=arr(D?.resourceGroups).filter(rg=>rg!=null);
   // ── RECOMMENDATIONS (before appendices) ────────────────────────
   if(!LIVE_CONFIG.skipConfigFindings || !isLive){
@@ -4995,6 +4841,169 @@ function rbBuildHTMLDoc(){
       rgHtml += docTable(['Resource Name','Type','Location'], res.map(r=>[esc(r.name), `<code style="font-size:10px;background:#f1f5f9;padding:1px 5px;border-radius:2px">${esc(r.shortType)}</code>`, esc(r.location||'—')]));
     });
     sections.push(rgHtml);
+  }
+
+
+// Workspaces → Session Desktops → Host Pools → App Groups → Applications → Session Hosts → Scaling → Networking → RBAC → RG Inventory
+
+  // ── 8. USER SESSIONS ──────────────────────────────────────────
+  if(sec('sessions') && sessions.length){
+    const active=sessions.filter(s=>s.sessionState==='Active');
+    const disc=sessions.filter(s=>s.sessionState==='Disconnected');
+    let sessHtml = sectionHeader(secNum++, '👤', 'User Sessions', `${sessions.length} session${sessions.length!==1?'s':''}`, 'sec-sessions', `${sessions.length} session${sessions.length!==1?'s':''}`);
+    sessHtml += kpiRow(
+      kpiBox('Total Sessions', sessions.length, '', 'cyan'),
+      kpiBox('Active', active.length, 'connected users', 'green'),
+      kpiBox('Disconnected', disc.length, 'idle sessions', disc.length>0?'amber':'green'),
+      kpiBox('Unique Users', new Set(sessions.map(s=>s.userPrincipalName).filter(Boolean)).size, '', 'blue')
+    );
+    sessHtml += docTable(
+      ['User','State','Session Host','Host Pool','Type','Connected Since'],
+      sessions.map(s=>[esc(s.userPrincipalName||'Unknown'), pill(s.sessionState||'—',s.sessionState==='Active'?'green':'amber'), esc((s.sessionHostName||'—').split('.')[0]), esc(s.hostPoolName||'—'), pill(s.applicationType||'Desktop',s.applicationType==='Desktop'?'blue':'purple'), esc(s.createTime||'—')])
+    );
+    sections.push(sessHtml);
+  }
+
+
+  // ── 12. COST ──────────────────────────────────────────────────
+  if(sec('cost') && s.costAvailable){
+    const hpCosts=hps.filter(hp=>hp.currentMonthCost!=null).sort((a,b)=>b.currentMonthCost-a.currentMonthCost);
+    let costHtml = sectionHeader(secNum++, '💰', 'Cost & FinOps', 'Month-to-Date', 'sec-cost');
+    costHtml += kpiRow(
+      kpiBox('Previous Month', s.previousMonthCost!=null?`${cur} ${s.previousMonthCost.toFixed(0)}`:'—', s.previousMonthFrom&&s.previousMonthTo?`${s.previousMonthFrom} → ${s.previousMonthTo}`:'not collected', 'gray'),
+      kpiBox('This Month MTD', `${cur} ${s.currentMonthCost?.toFixed(0)||'—'}`, s.currentMonthFrom&&s.currentMonthTo?`${s.currentMonthFrom} → ${s.currentMonthTo}`:'month to date', 'cyan'),
+      kpiBox('Projected EOM', proj?`${cur} ${proj.toFixed(0)}`:'—', 'estimate based on run rate', 'amber'),
+      kpiBox('Wasted Spend', s.wastedSpendEstimate?`${cur} ${s.wastedSpendEstimate.toFixed(0)}`:'—', `${s.wastedSpendHosts||0} idle/drain hosts`, s.wastedSpendEstimate>0?'amber':'green')
+    );
+    if(s.previousMonthCost!=null && proj!=null){
+      const delta=proj-s.previousMonthCost, pct=Math.round((delta/s.previousMonthCost)*100);
+      const dcolour=delta>0?'#dc2626':'#059669';
+      costHtml += `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:20px">${delta>0?'↑':'↓'}</span>
+        <span><strong style="color:${dcolour}">${delta>0?'+':''}${cur} ${Math.abs(delta).toFixed(2)} (${delta>0?'+':''}${pct}%)</strong> vs last month</span>
+        <span style="color:#94a3b8;font-size:11px;margin-left:auto">Projection = (MTD ÷ days elapsed) × days in month</span>
+      </div>`;
+    }
+    if(hpCosts.length){
+      costHtml += `<p style="font-weight:700;font-size:12px;margin-bottom:8px;color:#0d1117">Cost by Host Pool</p>`;
+      costHtml += docTable(
+        ['Host Pool','Cost MTD','% of Total'],
+        hpCosts.map(hp=>[esc(hp.name), `${cur} ${hp.currentMonthCost.toFixed(2)}`, Math.round((hp.currentMonthCost/(s.currentMonthCost||1))*100)+'%'])
+      );
+    }
+    sections.push(costHtml);
+  }
+
+  
+  // ── 11. FSLOGIX ───────────────────────────────────────────────
+  if(sec('fslogix')){
+    const fc=D?.fslogixCoverage||{};
+    const covPct=fc.coveragePct??0;
+    const sas=arr(fc.storageAccounts);
+    let fslHtml = sectionHeader(secNum++, '📦', 'FSLogix Profile Containers', undefined, 'sec-fslogix');
+    fslHtml += kpiRow(
+      kpiBox('Coverage', covPct+'%', `${fc.hostsWithFSLogix||0} of ${fc.totalHosts||shs.length} hosts`, covPct>=80?'green':covPct>=50?'amber':'red'),
+      kpiBox('With FSLogix', fc.hostsWithFSLogix||0, '', 'green'),
+      kpiBox('Without FSLogix', arr(fc.hostsWithout).length||0, 'needs attention', arr(fc.hostsWithout).length>0?'amber':'green'),
+      kpiBox('Slow Mounts', arr(D?.metrics?.fslogixSlowMounts).length||0, 'hosts affected', arr(D?.metrics?.fslogixSlowMounts).length>0?'amber':'green')
+    );
+    if(arr(fc.hostsWithout).length){
+      fslHtml += `<div style="background:#fef9c3;border-left:4px solid #ca8a04;border-radius:0 4px 4px 0;padding:8px 12px;margin-bottom:10px;font-size:11px"><strong>Hosts without FSLogix:</strong> ${arr(fc.hostsWithout).map(h=>`<code style="background:#fef3c7;padding:1px 5px;border-radius:2px">${esc(h)}</code>`).join(' ')}</div>`;
+    }
+    if(fc.fslogixCoverageNote) fslHtml += `<p style="font-size:11px;color:#64748b;font-style:italic">${esc(fc.fslogixCoverageNote)}</p>`;
+    if(sas.length){
+      fslHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Profile Storage Accounts (${sas.length})</p>`;
+      sas.forEach(sa=>{
+        const shares=arr(sa.shares);
+        fslHtml += `<div style="margin-bottom:12px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-weight:700;font-size:12px">${esc(sa.storageAccount)}</span>
+            <span style="font-size:10px;color:#64748b">${esc(sa.sku||'—')}</span>
+            <span style="font-size:10px;color:#94a3b8;margin-left:auto">${esc(sa.resourceGroup||'—')} · ${esc(sa.location||'—')}</span>
+          </div>
+          ${sa.storageAccountUrl?`<p style="font-size:10px;margin-bottom:8px"><b>Storage URL:</b> <code style="font-size:9px;color:#0055aa">${esc(sa.storageAccountUrl)}</code></p>`:''}
+          ${shares.length?docTable(
+            ['Share Name','Quota (GiB)','Used (GiB)','Utilisation','Tier','Share URL'],
+            shares.map(sh=>{
+              const hasQ=sh.quotaGiB>0;
+              const pct=hasQ?Math.round((sh.usedGiB/sh.quotaGiB)*100):null;
+              const col=pct==null?'#64748b':pct>85?'#dc2626':pct>65?'#d97706':'#059669';
+              return[
+                `<code style="font-size:10px">${esc(sh.name||'—')}</code>`,
+                hasQ?sh.quotaGiB:'No quota',
+                sh.usedGiB??'—',
+                pct!=null?`<span style="color:${col}">${pct}%</span>`:'—',
+                esc(sh.tier||'—'),
+                sh.shareUrl?`<code style="font-size:9px;color:#0055aa">${esc(sh.shareUrl)}</code>`:'—'
+              ];
+            })
+          ):'<p style="font-size:11px;color:#94a3b8">No shares found.</p>'}
+        </div>`;
+      });
+    }
+    sections.push(fslHtml);
+  }
+
+
+  
+
+  // ── 13. AVD DIAGNOSTICS & INSIGHTS COVERAGE ──────────────────
+
+    if(sec('intelligence')){
+    const met=D?.metrics||{};
+    const insSum=getInsightsSummary(prodHps);
+    let intHtml = sectionHeader(secNum++, '🔍', 'AVD Diagnostics & Insights Coverage', `${prodHps.length} prod host pool${prodHps.length!==1?'s':''}${diagNote}`, 'sec-intelligence');
+    // Summary KPIs
+    const diagComplete=insSum.complete, diagPartial=insSum.partial, diagNone=insSum.disabled;
+    intHtml += kpiRow(
+      kpiBox('Full Coverage', diagComplete, `all ${AVD_REQUIRED_CATEGORIES.length} categories enabled`, diagComplete===hps.length?'green':'amber'),
+      kpiBox('Partial Coverage', diagPartial, 'missing some categories', diagPartial>0?'amber':'green'),
+      kpiBox('Not Configured', diagNone, 'no diagnostics at all', diagNone>0?'red':'green'),
+      kpiBox('KQL Queries Ran', arr(met.queriesRun).length, met.querySupported?`${met.timespanDays||1}d window`:'No workspace', met.querySupported?'cyan':'amber')
+    );
+    // Per-host-pool diagnostics table
+    intHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Diagnostic Settings per Host Pool</p>`;
+    intHtml += docTable(
+      ['Host Pool','Diagnostics','Log Analytics Workspace','Categories Enabled','Missing Categories'],
+      insSum.details.map(r=>{
+        const ws=arr(arr(hps.find(hp=>hp.name===r.name)?.diagnosticSettings||[])).map(ds=>ds.workspaceName||'—').filter((v,i,a)=>a.indexOf(v)===i).join(', ')||'—';
+        const enabled=r.categories.join(', ')||'—';
+        const missing=r.missing.length?r.missing.map(c=>`<span style="color:#dc2626;font-size:9px">${esc(c)}</span>`).join(' '):'<span style="color:#059669">✓ All present</span>';
+        const status=r.complete?'<span style="color:#059669">✓ Complete</span>':r.enabled?'<span style="color:#d97706">⚑ Partial</span>':'<span style="color:#dc2626">✗ Not configured</span>';
+        return [esc(r.name), status, `<span style="font-size:9px">${esc(ws)}</span>`, `<span style="font-size:9px">${esc(enabled)}</span>`, missing];
+      })
+    );
+    // Required categories reference
+    intHtml += `<p style="font-size:10px;color:#64748b;margin-top:10px"><strong>Required categories for full AVD Insights:</strong> ${AVD_REQUIRED_CATEGORIES.map(c=>`<code style="font-size:9px;background:#f1f5f9;padding:1px 4px;border-radius:2px">${c}</code>`).join(' ')}</p>`;
+    // KQL summary if data available
+    if(met.querySupported && met.connectionSuccessRate!=null){
+      intHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">KQL Analytics Summary</p>`;
+      intHtml += docTable(['Metric','Value'],[
+        ['Connection Success Rate', met.connectionSuccessRate!=null?met.connectionSuccessRate+'%':'—'],
+        ['Queries Executed', arr(met.queriesRun).length+' of 19 configured'],
+        ['Window', (met.timespanDays||1)+' day(s)'],
+        ['Workspace ID', esc(met.workspaceId||'—')]
+      ]);
+    }
+    // Q5 — Top active users by hours
+    const rptQ5 = arr(met.Q5_rows);
+    if(rptQ5.length){
+      intHtml += '<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Top Active Users by Hours (7 days)</p>';
+      intHtml += docTable(['User','Total Hours','Sessions'],rptQ5.map(function(r){ return [esc(r.UserName||'—'),r.TotalHours??'—',r.Sessions??'—']; }));
+    }
+    // Q9 — Weekly hours per user
+    const rptQ9 = arr(met.Q9_rows).filter(function(r){ return r&&r.UserName; });
+    if(rptQ9.length){
+      intHtml += '<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Weekly Hours per User</p>';
+      intHtml += docTable(['User','Total Hours','Sessions','Avg Session Hours'],rptQ9.map(function(r){ return [esc(r.UserName||'—'),r.TotalHours??'—',r.Sessions??'—',r.AvgSessionHours??'—']; }));
+    }
+    // Q8 — User retention & churn
+    const rptQ8 = arr(met.Q8_rows).filter(function(r){ return r&&r.ThisWeekUsers!=null; });
+    if(rptQ8.length){
+      intHtml += '<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">User Retention &amp; Growth (WoW)</p>';
+      intHtml += docTable(['Trend','This Week','Last Week','Growth Rate','New','Returning','Lost'],rptQ8.map(function(r){ return [esc(r.Trend||'—'),r.ThisWeekUsers??'—',r.LastWeekUsers??'—',esc(r.GrowthRate||'—'),r.NewUsers??'—',r.ReturningUsers??'—',r.LostUsers??'—']; }));
+    }
+    sections.push(intHtml);
   }
 
   // ── APPENDIX B — RDP PROPERTIES FULL ANALYSIS ────────────────
