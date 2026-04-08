@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 21 nat gateway | Azure AVD Intelligence - Quick Report</title>
+<title> 22 last change | Azure AVD Intelligence - Quick Report</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -1065,7 +1065,7 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
         <div class="rb-section">
           <div class="rb-section-title">Executive Summary</div>
           <div class="rb-field">
-            <textarea class="rb-input" id="rb-exec-text" oninput="rbMarkDirty()" style="min-height:100px">This document provides an overview of the Azure Virtual Desktop (AVD) environment for [client], collected on [date] and prepared by [engineer]. \n This document captures the current state of the environment and serves as a reference for operational teams, stakeholders, and future planning activities.</textarea>
+            <textarea class="rb-input" id="rb-exec-text" oninput="rbMarkDirty()" style="min-height:100px">This document provides an overview of the Azure Virtual Desktop (AVD) environment for [client], collected on [date] and prepared by [engineer]. This document captures the current state of the environment and serves as a reference for operational teams, stakeholders, and future planning activities.</textarea>
             <div style="font-size:9px;color:var(--text-dim);font-style:italic;margin-top:4px">Use placeholders: [client], [date], [engineer]</div>
           </div>
           <div class="rb-field">
@@ -4690,6 +4690,7 @@ function rbBuildHTMLDoc(){
       );
     }
     
+
 	// NAT Gateway details - only if present
     const natGateways=arr(D?.networking?.natGateways);
     if(natGateways.length){
@@ -6010,8 +6011,10 @@ async function qrCollect() {
       const natGateways = rawNats.map(function(nat){
         const natProps = nat.properties || {};
         const publicIPs = (natProps.publicIpAddresses||[]).map(function(pip){
-          return { name: pip.id.split('/').pop(), ipAddress: '', id: pip.id };
+          //return { name: pip.id.split('/').pop(), ipAddress: '', id: pip.id };
+		  return { name: pip.id.split('/').pop(), ipAddress: pip.ipAddress||'', id: pip.id };
         });
+		
         // Find which subnets reference this NAT gateway
         const assocSubnets = (natProps.subnets||[]).map(function(s){ return s.id.split('/').pop(); });
         // Mark subnets in vnetMap
@@ -6030,6 +6033,19 @@ async function qrCollect() {
           subnets:          assocSubnets
         };
       });
+	  
+	  // Fetch actual IP addresses for NAT gateways
+      for(let nat of natGateways){
+        for(let pip of nat.publicIPAddresses){
+          if(pip.id){
+            try{
+              const pipResp = await armGet(pip.id + '?api-version=2023-05-01');
+              pip.ipAddress = pipResp.properties?.ipAddress || '';
+            }catch(e){ console.warn('Could not fetch IP for', pip.id); }
+          }
+        }
+      }
+
 
       // Convert vnetMap to array format expected by renderer
       const virtualNetworks = Object.values(vnetMap).map(function(vnet){
