@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 10 | Azure AVD Intelligence - Quick Report</title>
+<title> 11 | Azure AVD Intelligence - Quick Report</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -1065,9 +1065,8 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
         <div class="rb-section">
           <div class="rb-section-title">Executive Summary</div>
           <div class="rb-field">
-            <label class="rb-label">Summary Text</label>
-            <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-bottom:6px">Fixed text for Quick Report. Use placeholders: [client], [date], [engineer]</div>
             <textarea class="rb-input" id="rb-exec-text" oninput="rbMarkDirty()" style="min-height:100px">This document provides an overview of the Azure Virtual Desktop (AVD) environment for [client], collected on [date] and prepared by [engineer]. This document captures the current state of the environment and serves as a reference for operational teams, stakeholders, and future planning activities.</textarea>
+            <div style="font-size:9px;color:var(--text-dim);font-style:italic;margin-top:4px">Use placeholders: [client], [date], [engineer]</div>
           </div>
           <div class="rb-field">
             <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer">
@@ -1107,9 +1106,12 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
         <!-- Sections -->
         <!-- Live summary -->
         <div class="rb-summary">
-          <div class="rb-sum-row"><span class="rb-sum-key">Format</span><span class="rb-sum-val" id="rbs-fmt">—</span></div>
-          <div class="rb-sum-row"><span class="rb-sum-key">Sections</span><span class="rb-sum-val" id="rbs-secs">—</span></div>
-          <div class="rb-sum-row"><span class="rb-sum-key">Environment</span><span class="rb-sum-val" id="rbs-env">—</span></div>
+          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:var(--text-muted);margin-bottom:2px">Format</div>
+          <div style="font-size:11px;color:var(--text-primary);margin-bottom:10px" id="rbs-fmt">—</div>
+          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:var(--text-muted);margin-bottom:2px">Sections</div>
+          <div style="font-size:11px;color:var(--text-primary);margin-bottom:10px" id="rbs-secs">—</div>
+          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:var(--text-muted);margin-bottom:2px">Environment</div>
+          <div style="font-size:11px;color:var(--text-primary)" id="rbs-env">—</div>
         </div>
 
         <!-- Action buttons -->
@@ -3438,9 +3440,9 @@ function renderCost(){
 // ═══════════════════════════════════════════════════════════════════
 // REPORT BUILDER — Step 3
 // ═══════════════════════════════════════════════════════════════════
-const RB_DEFAULT_SECTIONS = new Set(['hostpools','workspaces','appgroups','applications','desktops','sessionhosts','scaling','rbac','rginventory','networking']);
+const RB_DEFAULT_SECTIONS = new Set(['overview','hostpools','workspaces','appgroups','applications','desktops','sessionhosts','scaling','rbac','rginventory','networking']);
 const RB_ALL_SECTIONS = [
-  {id:'overview',    label:'Overview & Statistics',     icon:'⬛', isDefault:false},
+  {id:'overview',    label:'Overview & Statistics',     icon:'⬛', isDefault:true},
   {id:'hostpools',   label:'Host Pools',                icon:'🖥', isDefault:true},
   {id:'workspaces',  label:'Workspaces',                icon:'⊞', isDefault:true},
   {id:'appgroups',   label:'Application Groups',        icon:'⊡', isDefault:true},
@@ -3523,7 +3525,7 @@ function rbSetFmt(fmt){
 function rbToggleSec(id,checked){ if(checked) rbState.sections.add(id); else rbState.sections.delete(id); rbUpdateSummary(); rbMarkDirty(); }
 const LIVE_CONFIG = {
   hiddenSections:     ['fslogix','cost','rdpanalysis','intelligence','sessions'],
-  tickedSections:     ['hostpools','workspaces','appgroups','applications','desktops','sessionhosts','scaling','rbac','rginventory','networking'],
+  tickedSections:     ['overview','hostpools','workspaces','appgroups','applications','desktops','sessionhosts','scaling','rbac','rginventory','networking'],
   hiddenUIFields:     ['rb-field-exec-style','rb-field-findings-sentence','rb-field-closing-para','rb-field-kf','rb-field-fi','rb-field-scope','rb-field-notes'],
   hiddenDocRows:      ['rb-doc-row-env','rb-doc-row-version'],
   skipPatchStatus:    true,
@@ -4165,6 +4167,7 @@ function rbBuildHTMLDoc(){
     return c;
   })();
   const sections = [];
+  let overviewHtml = '';
   let secNum = 1;
 
   // ── 1. EXECUTIVE SUMMARY (always) ─────────────────────────────
@@ -4339,7 +4342,7 @@ function rbBuildHTMLDoc(){
         ovHtml += '<p style="font-size:11px;color:#475569;margin-top:12px">'+allFindings.length+' configuration finding'+(allFindings.length!==1?'s':'')+' identified — see <em>Configuration Findings</em> section for details.</p>';
       }
     }
-    sections.push(ovHtml);
+    overviewHtml = ovHtml; // Store for insertion before TOC
   }
 
   // ── 3. HOST POOLS ──────────────────────────────────────────────
@@ -5015,7 +5018,6 @@ function rbBuildHTMLDoc(){
   if(kfVal!=='0') tocEntries.push({label:'Key Findings',id:'sec-keyfindings'});
   const fiVal = document.querySelector('input[name="rb-fi-style"]:checked')?.value||'0';
   if(fiVal!=='0') tocEntries.push({label:'Future Improvements',id:'sec-futureimprovements'});
-  if(sec('overview')) tocEntries.push({label:'Infrastructure Overview',id:'sec-overview'});
   if(sec('hostpools')&&hps.length) tocEntries.push({label:'Host Pools',id:'sec-hostpools'});
   if(sec('scaling')&&arr(D?.scalingPlans).length) tocEntries.push({label:'Scaling Plans',id:'sec-scaling'});
   if(sec('workspaces')&&arr(D?.avdWorkspaces).length) tocEntries.push({label:'Workspaces',id:'sec-workspaces'});
@@ -5038,14 +5040,10 @@ function rbBuildHTMLDoc(){
   <div style="margin:0 0 28px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:18px 22px">
     <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#00a8cc;text-transform:uppercase;margin-bottom:10px">Document Details</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:11px">
-      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">CLIENT</span><br><strong>${esc(client)}</strong></div>
-      ${LIVE_CONFIG.hiddenDocRows.includes('rb-doc-row-env')||isLive ? '' : `<div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">ENVIRONMENT</span><br>${esc(envName)}</div>`}
-      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">PREPARED BY</span><br>${esc(author)}</div>
-      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">VERSION</span><br>${esc(version)}</div>
-      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">DATE</span><br>${esc(docDate)}</div>
-      ${LIVE_CONFIG.hiddenDocRows.includes('rb-doc-row-version')||isLive ? '' : `<div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">DATA COLLECTED</span><br>${dataDate}</div>`}
       <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">SUBSCRIPTION</span><br><span style="font-size:10px">${esc(D?.subscriptionName||'—')}</span></div>
-      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">TENANT</span><br><span style="font-size:10px">${esc(D?.tenantName||D?.tenantId||'—')}</span></div>
+      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">DATE</span><br>${esc(docDate)}</div>
+      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">PREPARED BY</span><br>TabaniZ - AVD Intelligence</div>
+      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">VERSION</span><br>V 1.0</div>
     </div>
   </div>`;
 
@@ -5134,6 +5132,9 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:24px 0;}
 
   <!-- Document details -->
   ${docDetailsHtml}
+
+  <!-- Overview (if selected) -->
+  ${overviewHtml}
 
   <!-- TOC -->
   ${tocHtml}
