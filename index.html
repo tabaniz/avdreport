@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 11 | Azure AVD Intelligence - Quick Report</title>
+<title> 12 | Azure AVD Intelligence - Quick Report</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -4181,7 +4181,7 @@ function rbBuildHTMLDoc(){
     let execProse = execTextRaw
       .replace(/\[client\]/g, esc(client))
       .replace(/\[date\]/g, dataCollected)
-      .replace(/\[engineer\]/g, esc(author))
+      .replace(/\[engineer\]/g, 'TabaniZ - AVD Intelligence')
       .split('\n\n').map(p=>esc(p)).join('<br><br>');
 
     // Cost block — prose only, no KPI cards
@@ -5036,16 +5036,7 @@ function rbBuildHTMLDoc(){
   if(sec('rdpanalysis')&&hps.some(hp=>Object.keys(hp.rdpPropertiesParsed||{}).length)) tocEntries.push({label:'Appendix B — RDP Properties Analysis',id:'sec-rdpanalysis'});
 
   // ── Document details table (after cover, before TOC) ──────────
-  const docDetailsHtml = `
-  <div style="margin:0 0 28px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:18px 22px">
-    <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#00a8cc;text-transform:uppercase;margin-bottom:10px">Document Details</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:11px">
-      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">SUBSCRIPTION</span><br><span style="font-size:10px">${esc(D?.subscriptionName||'—')}</span></div>
-      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">DATE</span><br>${esc(docDate)}</div>
-      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">PREPARED BY</span><br>TabaniZ - AVD Intelligence</div>
-      <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">VERSION</span><br>V 1.0</div>
-    </div>
-  </div>`;
+  const docDetailsHtml = ``;
 
   const tocHtml = `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px 24px;margin:24px 0 32px">
     <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#00a8cc;text-transform:uppercase;margin-bottom:12px">Table of Contents</div>
@@ -5119,13 +5110,11 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:24px 0;}
       ${logoUrl?`<div class="cover-logo-wrap"><img class="cover-logo" src="${esc(logoUrl)}" alt="" onerror="this.style.display='none'"></div>`:''}
     </div>
     <div class="cover-rule"></div>
-    <div class="cover-meta">
-      <div class="cover-meta-item"><label>Version</label><span>${esc(version)}</span></div>
+    <div class="cover-meta" style="grid-template-columns:1fr 1fr">
+      <div class="cover-meta-item"><label>Subscription</label><span>${esc(D?.subscriptionName||'—')}</span></div>
       <div class="cover-meta-item"><label>Date</label><span>${esc(docDate)}</span></div>
-      <div class="cover-meta-item"><label>Prepared By</label><span>${esc(author)}</span></div>
-      <div class="cover-meta-item"><label>Subscription</label><span>${esc(sub)}</span></div>
-      <div class="cover-meta-item"><label>Tenant</label><span>${esc(D?.tenantName||D?.tenantId||'—')}</span></div>
-      <div class="cover-meta-item"><label>Data Collected</label><span>${D?.generatedAt?(new Date(D.generatedAt).toLocaleDateString('en-AU')):'—'}</span></div>
+      <div class="cover-meta-item"><label>Prepared By</label><span>TabaniZ - AVD Intelligence</span></div>
+      <div class="cover-meta-item"><label>Version</label><span>V 1.0</span></div>
     </div>
     ${scope?`<div class="cover-scope"><strong>Scope:</strong> ${esc(scope)}</div>`:''}
   </div>
