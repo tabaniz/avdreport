@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 12 | Azure AVD Intelligence - Quick Report</title>
+<title> 18 | Azure AVD Intelligence - Quick Report</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -4362,7 +4362,11 @@ function rbBuildHTMLDoc(){
           <span style="font-family:'Segoe UI',sans-serif;font-weight:700;font-size:14px;color:#0d1117">${esc(hp.name)}</span>
           ${pill(hp.hostPoolType||'Pooled', hp.hostPoolType==='Pooled'?'cyan':'purple')}
           ${hp.isValidationEnv?pill('Validation','amber'):''}
-          <span style="margin-left:auto">${healthBar(hp.healthPct||0)}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">AVAILABILITY</span>
+          <span style="font-weight:700;font-size:12px;color:#059669">${Math.round(hp.healthPct||0)}%</span>
+          ${healthBar(hp.healthPct||0)}
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#475569">
           ${hp.friendlyName&&hp.friendlyName!==hp.name?`<div style="grid-column:1/-1"><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">FRIENDLY NAME</span><br>${esc(hp.friendlyName)}</div>`:''}
@@ -4698,8 +4702,14 @@ function rbBuildHTMLDoc(){
     
     // Host pool config table
     netHtml += docTable(
-      ['Host Pool','Type','Load Balancer','Max Sessions','Start VM on Connect','Validation'],
-      hps.map(hp=>[esc(hp.name), pill(hp.hostPoolType||'Pooled',hp.hostPoolType==='Personal'?'purple':'cyan'), esc(hp.loadBalancerType||'—'), hp.maxSessionLimit||'—', hp.startVMOnConnect?'<span style="color:#059669">Enabled</span>':'Disabled', hp.isValidationEnv?'<span style="color:#d97706">Yes</span>':'No'])
+      ['Host Pool','Type','Load Balancer','Max Sessions','RDP ShortPath','Public Access','Private Endpoint'],
+      hps.map(hp=>{
+        const rdp=hp.rdpPropertiesParsed||{};
+        const shortPath=rdp['use RDP Shortpath for']||rdp['rdpshortpath']?'<span style="color:#059669">Enabled</span>':'<span style="color:#94a3b8">Not configured</span>';
+        const publicAccess=hp.publicNetworkAccess===false?'<span style="color:#d97706">Private Only</span>':'<span style="color:#059669">Enabled</span>';
+        const pe=hp.privateEndpointEnabled?'<span style="color:#059669">✓ Configured</span>':'<span style="color:#94a3b8">—</span>';
+        return [esc(hp.name), pill(hp.hostPoolType||'Pooled',hp.hostPoolType==='Personal'?'purple':'cyan'), esc(hp.loadBalancerType||'—'), hp.maxSessionLimit||'—', shortPath, publicAccess, pe];
+      })
     );
     
     // Session host network table
@@ -4707,8 +4717,8 @@ function rbBuildHTMLDoc(){
     if(shsWithIP.length){
       netHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Session Host Network Details</p>`;
       netHtml += docTable(
-        ['Host','Host Pool','Private IP','VM Size','AMA Agent'],
-        shs.map(sh=>[esc(sh.vmName||sh.name||'—'), esc(sh.hostPoolName||'—'), `<code style="font-size:10px">${esc(sh.privateIP||'—')}</code>`, `<code style="font-size:10px">${esc(sh.vmSize||'—')}</code>`, sh.hasAMAAgent?'<span style="color:#059669">✓</span>':'—'])
+        ['Host','Host Pool','Private IP','VM Size','VNet / Subnet'],
+        shs.map(sh=>[esc(sh.vmName||sh.name||'—'), esc(sh.hostPoolName||'—'), `<code style="font-size:10px">${esc(sh.privateIP||'—')}</code>`, `<code style="font-size:10px">${esc(sh.vmSize||'—')}</code>`, `<span style="font-size:10px">${esc(sh.vnetName||'—')} / ${esc(sh.subnetName||'—')}</span>`])
       );
     }
     
@@ -4728,7 +4738,23 @@ function rbBuildHTMLDoc(){
       netHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">NAT Gateways</p>`;
       netHtml += docTable(
         ['NAT Gateway','Public IP','Location','Attached Subnets'],
-        natGateways.map(nat=>[esc(nat.name||'—'), `<code style="font-size:10px">${esc(arr(nat.publicIpNames).join(', ')||'—')}</code>`, esc(nat.location||'—'), arr(nat.subnets).length])
+        natGateways.map(nat=>{
+          const ipNames=arr(nat.publicIpNames);
+          const ipAddrs=arr(nat.publicIPAddresses).map(p=>p.ipAddress||p.name).filter(Boolean);
+          const ipCell=ipNames.length?`${esc(ipNames.join(', '))}<br><code style="font-size:9px;color:#64748b">${esc(ipAddrs.join(', ')||'—')}</code>`:'—';
+          const subnetNames=arr(nat.subnets).map(s=>s.name||s).filter(Boolean);
+          return [esc(nat.name||'—'), ipCell, esc(nat.location||'—'), subnetNames.length?`<span style="font-size:10px">${esc(subnetNames.join(', '))}</span>`:'—'];
+        })
+      );
+    }
+    
+    // Bastion details - only if present
+    const bastions=arr(D?.networking?.bastionHosts);
+    if(bastions.length){
+      netHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Azure Bastion</p>`;
+      netHtml += docTable(
+        ['Bastion Host','SKU','VNet','Public IP'],
+        bastions.map(b=>[esc(b.name||'—'), esc(b.sku||'Standard'), esc(b.vnetName||'—'), `<code style="font-size:10px">${esc(b.publicIpName||'—')}</code>`])
       );
     }
     
@@ -4801,8 +4827,12 @@ function rbBuildHTMLDoc(){
         kpiBox('Distinct Roles', new Set(all.map(a=>a.role).filter(Boolean)).size, '', 'blue')
       );
       rbacHtml += docTable(
-        ['Principal','Type','Role','Scope'],
-        all.map(a=>[esc(a.displayName||a.signInName||a.objectId||'—'), pill(a.objectType||'—',a.objectType==='Group'?'cyan':'gray'), esc(a.role||'—'), esc(a.scope||'—')])
+        ['Principal','Type','Role'],
+        all.map(a=>[
+          `${esc(a.displayName||a.signInName||'—')}<br><code style="font-size:9px;color:#64748b">${esc(a.objectId||'—')}</code>`,
+          `${pill(a.objectType||'—',a.objectType==='Group'?'cyan':'gray')}<br><span style="font-size:9px;color:#64748b">${esc(a.scope||'—')}</span>`,
+          esc(a.role||'—')
+        ])
       );
       sections.push(rbacHtml);
     }
@@ -5018,16 +5048,16 @@ function rbBuildHTMLDoc(){
   if(kfVal!=='0') tocEntries.push({label:'Key Findings',id:'sec-keyfindings'});
   const fiVal = document.querySelector('input[name="rb-fi-style"]:checked')?.value||'0';
   if(fiVal!=='0') tocEntries.push({label:'Future Improvements',id:'sec-futureimprovements'});
-  if(sec('hostpools')&&hps.length) tocEntries.push({label:'Host Pools',id:'sec-hostpools'});
-  if(sec('scaling')&&arr(D?.scalingPlans).length) tocEntries.push({label:'Scaling Plans',id:'sec-scaling'});
   if(sec('workspaces')&&arr(D?.avdWorkspaces).length) tocEntries.push({label:'Workspaces',id:'sec-workspaces'});
+  if(sec('desktops')&&ags.filter(g=>g.applicationGroupType==='Desktop').length) tocEntries.push({label:'Session Desktops',id:'sec-desktops'});
+  if(sec('hostpools')&&hps.length) tocEntries.push({label:'Host Pools',id:'sec-hostpools'});
   if(sec('appgroups')&&ags.length) tocEntries.push({label:'Application Groups',id:'sec-appgroups'});
   if(sec('applications')) tocEntries.push({label:'Published Applications',id:'sec-applications'});
-  if(sec('desktops')&&ags.filter(g=>g.applicationGroupType==='Desktop').length) tocEntries.push({label:'Session Desktops',id:'sec-desktops'});
   if(sec('sessionhosts')&&shs.length) tocEntries.push({label:'Session Hosts',id:'sec-sessionhosts'});
-  if(sec('sessions')&&sessions.length) tocEntries.push({label:'User Sessions',id:'sec-sessions'});
-  if(sec('rbac')) tocEntries.push({label:'RBAC Assignments',id:'sec-rbac'});
+  if(sec('scaling')&&arr(D?.scalingPlans).length) tocEntries.push({label:'Scaling Plans',id:'sec-scaling'});
   if(sec('networking')&&hps.length) tocEntries.push({label:'Networking Configuration',id:'sec-networking'});
+  if(sec('rbac')) tocEntries.push({label:'RBAC Assignments',id:'sec-rbac'});
+  if(sec('sessions')&&sessions.length) tocEntries.push({label:'User Sessions',id:'sec-sessions'});
   if(sec('fslogix')) tocEntries.push({label:'FSLogix Profile Containers',id:'sec-fslogix'});
   if(sec('cost')&&s.costAvailable) tocEntries.push({label:'Cost & FinOps',id:'sec-cost'});
   if(sec('intelligence')) tocEntries.push({label:'AVD Diagnostics & Insights Coverage',id:'sec-intelligence'});
