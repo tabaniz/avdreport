@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 4 | Azure AVD Intelligence - AVD Environment Quick Report</title>
+<title>AVD Intelligence - Quick Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -860,7 +860,7 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
       <div class="brand-icon">🖥</div>
       <div>
         <div class="brand-name">YGIT <span>AVD</span> Intelligence</div>
-        <div class="brand-ver">v1.0 · AVD Environment Documentation</div>
+        <div class="brand-ver">v1.0 · AVD Environment Documentation Platform</div>
       </div>
     </div>
     <div class="header-sep"></div>
@@ -1071,23 +1071,19 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
         </div>
 
         <!-- Executive Summary -->
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-exec-style" value="0" checked onchange="rbExecChange()"> <span>Universal — suitable for any audience</span></label>
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-exec-style" value="1" onchange="rbExecChange()"> <span>Option 1 — Balanced & professional</span></label>
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-exec-style" value="2" onchange="rbExecChange()"> <span>Option 2 — User-experience focused</span></label>
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-exec-style" value="3" onchange="rbExecChange()"> <span>Option 3 — Executive concise</span></label>
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-exec-style" value="4" onchange="rbExecChange()"> <span>Option 4 — Governance focused</span></label>
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-exec-style" value="5" onchange="rbExecChange()"> <span>Option 5 — Client reassurance</span></label>
-              <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="rb-exec-style" value="6" onchange="rbExecChange()"> <span>Option 6 — Conversational</span></label>
-            </div>
-          </div>
+        <div class="rb-section">
+          <div class="rb-section-title">Executive Summary</div>
           <div class="rb-field">
-            <label class="rb-label">Executive Summary Text</label>
-            <textarea class="rb-input" id="rb-exec-text" oninput="rbMarkDirty()" style="min-height:120px"></textarea>
+            <label class="rb-label">Summary Text</label>
+            <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-bottom:6px">Fixed text for Quick Report. Use placeholders: [client], [date], [engineer]</div>
+            <textarea class="rb-input" id="rb-exec-text" oninput="rbMarkDirty()" style="min-height:100px">This document provides an overview of the Azure Virtual Desktop (AVD) environment for [client], collected on [date] and prepared by [engineer]. This document captures the current state of the environment and serves as a reference for operational teams, stakeholders, and future planning activities.</textarea>
           </div>
           <div class="rb-field">
             <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer">
               <input type="checkbox" id="rb-disclaimer" checked onchange="rbMarkDirty()">
               <span class="rb-label" style="margin:0">Include disclaimer</span>
+            </label>
+            <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-left:22px">"This document reflects the environment and observed behaviour at the time of review and is intended for informational and operational reference purposes."</div>
             </label>
             <div style="font-size:10px;color:var(--text-muted);margin-top:4px;font-style:italic">This document reflects the environment and observed behaviour at the time of review and is intended for informational and operational reference purposes.</div>
           </div>
