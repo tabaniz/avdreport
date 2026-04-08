@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> new 20 manual | Azure AVD Intelligence - Quick Report</title>
+<title> 21 nat gateway | Azure AVD Intelligence - Quick Report</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -1065,8 +1065,7 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
         <div class="rb-section">
           <div class="rb-section-title">Executive Summary</div>
           <div class="rb-field">
-            <textarea class="rb-input" id="rb-exec-text" oninput="rbMarkDirty()" style="min-height:100px">This document provides an overview of the Azure Virtual Desktop (AVD) environment for [client], collected on [date] and prepared by [engineer]. 
-				This document captures the current state of the environment and serves as a reference for operational teams, stakeholders, and future planning activities.</textarea>
+            <textarea class="rb-input" id="rb-exec-text" oninput="rbMarkDirty()" style="min-height:100px">This document provides an overview of the Azure Virtual Desktop (AVD) environment for [client], collected on [date] and prepared by [engineer]. \n This document captures the current state of the environment and serves as a reference for operational teams, stakeholders, and future planning activities.</textarea>
             <div style="font-size:9px;color:var(--text-dim);font-style:italic;margin-top:4px">Use placeholders: [client], [date], [engineer]</div>
           </div>
           <div class="rb-field">
@@ -4691,16 +4690,17 @@ function rbBuildHTMLDoc(){
       );
     }
     
-    // NAT Gateway details - only if present
+	// NAT Gateway details - only if present
     const natGateways=arr(D?.networking?.natGateways);
     if(natGateways.length){
       netHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">NAT Gateways</p>`;
       netHtml += docTable(
         ['NAT Gateway','Public IP','Location','Attached Subnets'],
         natGateways.map(nat=>{
-          const ips=arr(nat.publicIPAddresses);
-          const ipCell=ips.length?ips.map(p=>`${esc(p.name||'—')}<br><code style="font-size:9px;color:#64748b">${esc(p.ipAddress||'—')}</code>`).join('<br>'):'—';
-          const subnetNames=arr(nat.subnets).map(s=>s.name||s).filter(Boolean);
+          console.log('NAT Gateway data:', nat);
+          const ips=arr(nat.publicIPAddresses||nat.publicIpAddresses);
+          const ipCell=ips.length?ips.map(p=>`${esc(p.name||p.publicIPAddressName||'—')}<br><code style="font-size:9px;color:#64748b">${esc(p.ipAddress||p.publicIPAddress||'—')}</code>`).join('<br>'):'—';
+          const subnetNames=arr(nat.subnets||nat.associatedSubnets).map(s=>s.name||s.subnetName||s).filter(Boolean);
           return [esc(nat.name||'—'), ipCell, esc(nat.location||'—'), subnetNames.length?`<span style="font-size:10px">${esc(subnetNames.join(', '))}</span>`:'—'];
         })
       );
