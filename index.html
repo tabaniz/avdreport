@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 8 | Azure AVD Intelligence - Quick Report</title>
+<title> 9 | Azure AVD Intelligence - Quick Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -3439,22 +3439,17 @@ function renderCost(){
 // ═══════════════════════════════════════════════════════════════════
 const RB_DEFAULT_SECTIONS = new Set(['hostpools','workspaces','appgroups','applications','desktops','sessionhosts','scaling','rbac','rginventory','networking']);
 const RB_ALL_SECTIONS = [
-  {id:'overview',    label:'Overview & Statistics',     icon:'⬛', isDefault:true},
-  {id:'workspaces',  label:'Workspaces',                icon:'⊞', isDefault:false},
+  {id:'overview',    label:'Overview & Statistics',     icon:'⬛', isDefault:false},
   {id:'hostpools',   label:'Host Pools',                icon:'🖥', isDefault:true},
-  {id:'appgroups',   label:'Application Groups',        icon:'⊡', isDefault:false},
-  {id:'desktops',    label:'Session Desktops',          icon:'🖵', isDefault:false},
+  {id:'workspaces',  label:'Workspaces',                icon:'⊞', isDefault:true},
+  {id:'appgroups',   label:'Application Groups',        icon:'⊡', isDefault:true},
+  {id:'applications',label:'Applications',              icon:'🚀', isDefault:true},
+  {id:'desktops',    label:'Session Desktops',          icon:'🖵', isDefault:true},
   {id:'sessionhosts',label:'Session Hosts',             icon:'💻', isDefault:true},
-  {id:'scaling',     label:'Scaling Plans',             icon:'⚖', isDefault:false},
-  {id:'networking',  label:'Networking',                icon:'🌐', isDefault:false},
-  {id:'rbac',        label:'RBAC Assignments',          icon:'🔑', isDefault:false},
-  {id:'intelligence',label:'AVD Diagnostics',           icon:'🔍', isDefault:true},
-  {id:'applications',label:'Applications',              icon:'🚀', isDefault:false},
-  {id:'fslogix',     label:'FSLogix',                   icon:'📦', isDefault:false},
-  {id:'cost',        label:'Cost & FinOps',             icon:'💰', isDefault:true},
-  {id:'sessions',    label:'User Sessions',             icon:'👤', isDefault:true},
-  {id:'rginventory', label:'RG Inventory (Appendix A)', icon:'📋', isDefault:false},
-  {id:'rdpanalysis', label:'RDP Analysis (Appendix B)', icon:'🔧', isDefault:false},
+  {id:'scaling',     label:'Scaling Plans',             icon:'⚖', isDefault:true},
+  {id:'rbac',        label:'RBAC Assignments',          icon:'🔑', isDefault:true},
+  {id:'rginventory', label:'RG Inventory (Appendix A)', icon:'📋', isDefault:true},
+  {id:'networking',  label:'Networking',                icon:'🌐', isDefault:true},
 ];
 let rbState = { format:'html', sections:new Set(RB_DEFAULT_SECTIONS), dirty:true };
 
@@ -4696,11 +4691,13 @@ function rbBuildHTMLDoc(){
   if(sec('networking') && hps.length){
     const net = D?.networking||null;
     let netHtml = sectionHeader(secNum++, '🌐', 'Networking Configuration', undefined, 'sec-networking');
+    
     // Host pool config table
     netHtml += docTable(
       ['Host Pool','Type','Load Balancer','Max Sessions','Start VM on Connect','Validation'],
       hps.map(hp=>[esc(hp.name), pill(hp.hostPoolType||'Pooled',hp.hostPoolType==='Personal'?'purple':'cyan'), esc(hp.loadBalancerType||'—'), hp.maxSessionLimit||'—', hp.startVMOnConnect?'<span style="color:#059669">Enabled</span>':'Disabled', hp.isValidationEnv?'<span style="color:#d97706">Yes</span>':'No'])
     );
+    
     // Session host network table
     const shsWithIP=shs.filter(s=>s.privateIP&&s.privateIP!=='Not assigned');
     if(shsWithIP.length){
@@ -4710,111 +4707,27 @@ function rbBuildHTMLDoc(){
         shs.map(sh=>[esc(sh.vmName||sh.name||'—'), esc(sh.hostPoolName||'—'), `<code style="font-size:10px">${esc(sh.privateIP||'—')}</code>`, `<code style="font-size:10px">${esc(sh.vmSize||'—')}</code>`, sh.hasAMAAgent?'<span style="color:#059669">✓</span>':'—'])
       );
     }
-    // RDP Properties — configured values per host pool (compact)
-    const hpsWithRdp = hps.filter(hp=>Object.keys(hp.rdpPropertiesParsed||{}).length);
-    if(hpsWithRdp.length){
-      netHtml += `<p style="font-weight:700;font-size:12px;margin:16px 0 6px;color:#0d1117">RDP Properties — Configured Values</p>`;
-      netHtml += `<p style="font-size:11px;color:#64748b;margin-bottom:10px;font-style:italic">Shows only explicitly configured properties. See Appendix B for full analysis including recommended settings.</p>`;
-      netHtml += docTable(
-        ['Property','Category',...hpsWithRdp.map(hp=>esc(hp.name)),'Compliance'],
-        (() => {
-          const allKeys=[...new Set(hpsWithRdp.flatMap(hp=>Object.keys(hp.rdpPropertiesParsed||{})))].sort();
-          return allKeys.map(key=>{
-            const ref=RDP_REF[key];
-            const vals=hpsWithRdp.map(hp=>{
-              const v=hp.rdpPropertiesParsed?.[key];
-              if(v===undefined||v===''||v==='s:') return '<span style="color:#94a3b8">—</span>';
-              const c=rdpCompliance(key,v);
-              const col=c==='compliant'?'#059669':c==='review'?'#d97706':'#94a3b8';
-              return `<span style="color:${col}">${esc(String(v))}</span>`;
-            });
-            const statuses=hpsWithRdp.map(hp=>rdpCompliance(key,hp.rdpPropertiesParsed?.[key]));
-            const allCompliant=statuses.every(s=>s==='compliant');
-            const anyReview=statuses.some(s=>s==='review');
-            const status=allCompliant?'<span style="color:#059669">✓</span>':anyReview?'<span style="color:#d97706">⚑ Review</span>':'<span style="color:#94a3b8">—</span>';
-            return [
-              `<code style="font-size:9px">${esc(key)}</code>`,
-              `<span style="font-size:10px;color:#64748b">${ref?.cat||'Other'}</span>`,
-              ...vals,
-              status
-            ];
-          });
-        })()
-      );
-      // Compliance summary KPI row
-      const allKeys2=[...new Set(hpsWithRdp.flatMap(hp=>Object.keys(hp.rdpPropertiesParsed||{})))];
-      const compliantCount=allKeys2.filter(k=>hpsWithRdp.every(hp=>rdpCompliance(k,hp.rdpPropertiesParsed?.[k])==='compliant')).length;
-      const reviewCount=allKeys2.filter(k=>hpsWithRdp.some(hp=>rdpCompliance(k,hp.rdpPropertiesParsed?.[k])==='review')).length;
-      const notConfigured=Object.keys(RDP_REF).length-allKeys2.length;
-      netHtml += kpiRow(
-        kpiBox('Configured',allKeys2.length,'of '+Object.keys(RDP_REF).length+' known properties','cyan'),
-        kpiBox('Compliant',compliantCount,'match recommended','green'),
-        kpiBox('Review Recommended',reviewCount,'differ from recommended',reviewCount>0?'amber':'green'),
-        kpiBox('Not Configured',notConfigured,'using Azure defaults',notConfigured>5?'amber':'green')
-      );
-    }
-    // RDP ShortPath config table
-    const hpsWithRdp2=hps.filter(hp=>Object.keys(hp.rdpPropertiesParsed||{}).length>0);
-    if(hpsWithRdp2.length){
-      netHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">RDP Configuration Summary</p>`;
-      netHtml += docTable(
-        ['Host Pool','Entra ID Auth','WebAuthn','Multi-Monitor','Drive Redirect','Registration Token'],
-        hpsWithRdp2.map(hp=>{
-          const rdp=hp.rdpPropertiesParsed||{};
-          const tick='<span style="color:#059669">✓</span>';
-          const cross='<span style="color:#d97706">—</span>';
-          const warn='<span style="color:#dc2626">⚠ Active</span>';
-          return [esc(hp.name), rdp['enablerdsaadauth']==='1'?tick:cross, rdp['redirectwebauthn']==='1'?tick:cross, rdp['use multimon']==='1'?tick:cross, rdp['drivestoredirect']===''||rdp['drivestoredirect']==='s:'?tick+'<span style="font-size:9px;color:#64748b"> disabled</span>':cross, hp.registrationTokenStatus==='Active'?warn:'<span style="color:#059669">None</span>'];
-        })
-      );
-    }
-    // Private Endpoint status
-    const hpWithPE2=hps.filter(hp=>hp.privateEndpointEnabled);
-    const hpWithoutPE=hps.filter(hp=>hp.privateEndpointEnabled===false&&!hp.isValidationEnv);
-    if(hps.some(hp=>hp.privateEndpointEnabled!==undefined)){
+    
+    // Private Endpoint coverage - only show if PE exists
+    const hpWithPE=hps.filter(hp=>hp.privateEndpointEnabled);
+    if(hpWithPE.length>0){
       netHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Private Endpoint Coverage</p>`;
       netHtml += kpiRow(
-        kpiBox('Host Pools with PE', hpWithPE2.length+'/'+hps.length, hpWithPE2.length===hps.length?'All private':'Partial', hpWithPE2.length===hps.length?'green':hpWithPE2.length>0?'amber':'red'),
-        kpiBox('Without PE', hpWithoutPE.length, 'production pools', hpWithoutPE.length>0?'amber':'green'),
-        kpiBox('AVD DNS Zones', D?.networking?.privateEndpoints?.avdDnsZonesConfigured||0, 'privatelink.wvd.microsoft.com', (D?.networking?.privateEndpoints?.avdDnsZonesConfigured||0)>0?'green':'amber'),
-        kpiBox('Architecture', D?.networking?.topologyNotes?.some(n=>n.includes('Hub-and-spoke'))?'Hub-Spoke':'Standard', '', 'blue')
+        kpiBox('Host Pools with PE', hpWithPE.length+'/'+hps.length, hpWithPE.length===hps.length?'All private':'Partial', hpWithPE.length===hps.length?'green':'amber'),
+        kpiBox('AVD DNS Zones', D?.networking?.privateEndpoints?.avdDnsZonesConfigured||0, 'privatelink.wvd.microsoft.com', (D?.networking?.privateEndpoints?.avdDnsZonesConfigured||0)>0?'green':'amber')
       );
-      if(hpWithoutPE.length){
-        netHtml += `<div style="background:#fef9c3;border-left:4px solid #ca8a04;border-radius:0 4px 4px 0;padding:8px 12px;margin:6px 0;font-size:11px"><strong>Private endpoints not configured:</strong> ${hpWithoutPE.map(hp=>esc(hp.name)).join(', ')}. AVD control plane traffic uses public internet.</div>`;
-      }
     }
-    // Topology notes
-    const topoNotes2=arr(D?.networking?.topologyNotes);
-    if(topoNotes2.length){
-      netHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">Architecture Notes</p>`;
-      netHtml += `<ul style="margin:0 0 10px 16px">${topoNotes2.map(n=>`<li style="font-size:11px;color:${n.includes('WARNING')||n.includes('No ')?'#d97706':n.includes('✓')?'#059669':'#475569'};margin-bottom:4px">${esc(n)}</li>`).join('')}</ul>`;
+    
+    // NAT Gateway details - only if present
+    const natGateways=arr(D?.networking?.natGateways);
+    if(natGateways.length){
+      netHtml += `<p style="font-weight:700;font-size:12px;margin:14px 0 6px;color:#0d1117">NAT Gateways</p>`;
+      netHtml += docTable(
+        ['NAT Gateway','Public IP','Location','Attached Subnets'],
+        natGateways.map(nat=>[esc(nat.name||'—'), `<code style="font-size:10px">${esc(arr(nat.publicIpNames).join(', ')||'—')}</code>`, esc(nat.location||'—'), arr(nat.subnets).length])
+      );
     }
-    // Topology architecture diagram (text-based for document)
-    if(net && arr(net.virtualNetworks).length){
-      netHtml += `<p style="font-weight:700;font-size:12px;margin:16px 0 6px;color:#0d1117">Network Architecture</p>`;
-      arr(net.virtualNetworks).forEach(vnet=>{
-        const peers=arr(vnet.peerings);
-        const avdSubs=arr(vnet.subnets).filter(s=>s.sessionHostCount>0);
-        const natName=arr(vnet.subnets).find(s=>s.natGatewayName)?.natGatewayName;
-        const nat=arr(D?.networking?.natGateways).find(n=>n.name===natName);
-        netHtml += `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px;margin-bottom:10px">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-            <span style="font-weight:700;font-size:13px;color:#0d1117">🌐 ${esc(vnet.name)}</span>
-            <span style="font-family:'Courier New',monospace;font-size:10px;color:#64748b">${esc(arr(vnet.addressSpace).join(', '))} · ${esc(vnet.location||'')}</span>
-            ${peers.length?`<span style="background:#ede9fe;color:#7c3aed;border-radius:3px;padding:1px 7px;font-size:9px;font-family:'Courier New',monospace">Hub-Spoke (${peers.length} peering${peers.length!==1?'s':''})</span>`:''}
-          </div>
-          ${nat?`<div style="font-size:10px;color:#059669;margin-bottom:6px">🔀 Outbound via NAT Gateway: ${esc(nat.name)} · Public IP: ${arr(nat.publicIPAddresses).map(p=>p.ipAddress||p.name||'—').join(', ')||'—'}</div>`:'<div style="font-size:10px;color:#d97706;margin-bottom:6px">⚠ No NAT Gateway — outbound uses default Azure SNAT</div>'}
-          ${arr(D?.networking?.bastionHosts).find(b=>arr(vnet.subnets).some(s=>s.name==='AzureBastionSubnet'))?`<div style="font-size:10px;color:#7c3aed;margin-bottom:6px">🏰 Azure Bastion deployed (${arr(D?.networking?.bastionHosts)[0]?.sku||'Standard'} SKU)</div>`:''}
-          ${avdSubs.length?docTable(['Subnet','Prefix','Host Pool','Hosts','NAT GW','NSG'],avdSubs.map(sn=>[esc(sn.name),`<code style="font-size:9px">${esc(sn.addressPrefix||'—')}</code>`,esc(sn.associatedHostPool||'—'),sn.sessionHostCount||0,sn.natGatewayName?`<span style="color:#059669">✓ ${esc(sn.natGatewayName)}</span>`:'<span style="color:#d97706">None</span>',sn.nsgName?`<span style="color:#2563eb">✓ ${esc(sn.nsgName)}</span>`:'—'])):''}
-        </div>`;
-      });
-      // NSG findings summary
-      const allNsgF=arr(D?.networking?.networkSecurityGroups).flatMap(n=>arr(n.securityFindings));
-      if(allNsgF.length){
-        netHtml += `<p style="font-weight:700;font-size:12px;margin:12px 0 6px;color:#0d1117">NSG Security Findings</p>`;
-        allNsgF.forEach(f=>{ netHtml+=findingBlock(f.severity,f.finding); });
-      }
-    }
+    
     sections.push(netHtml);
   }
 
