@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 9 | Azure AVD Intelligence - Quick Report</title>
+<title> mine 9 | Azure AVD Intelligence - Quick Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -5015,16 +5015,18 @@ function rbBuildHTMLDoc(){
   const fiVal = document.querySelector('input[name="rb-fi-style"]:checked')?.value||'0';
   if(fiVal!=='0') tocEntries.push({label:'Future Improvements',id:'sec-futureimprovements'});
   if(sec('overview')) tocEntries.push({label:'Infrastructure Overview',id:'sec-overview'});
-  if(sec('hostpools')&&hps.length) tocEntries.push({label:'Host Pools',id:'sec-hostpools'});
-  if(sec('scaling')&&arr(D?.scalingPlans).length) tocEntries.push({label:'Scaling Plans',id:'sec-scaling'});
   if(sec('workspaces')&&arr(D?.avdWorkspaces).length) tocEntries.push({label:'Workspaces',id:'sec-workspaces'});
+  if(sec('desktops')&&ags.filter(g=>g.applicationGroupType==='Desktop').length) tocEntries.push({label:'Session Desktops',id:'sec-desktops'});
+  if(sec('hostpools')&&hps.length) tocEntries.push({label:'Host Pools',id:'sec-hostpools'});
   if(sec('appgroups')&&ags.length) tocEntries.push({label:'Application Groups',id:'sec-appgroups'});
   if(sec('applications')) tocEntries.push({label:'Published Applications',id:'sec-applications'});
-  if(sec('desktops')&&ags.filter(g=>g.applicationGroupType==='Desktop').length) tocEntries.push({label:'Session Desktops',id:'sec-desktops'});
   if(sec('sessionhosts')&&shs.length) tocEntries.push({label:'Session Hosts',id:'sec-sessionhosts'});
+  if(sec('scaling')&&arr(D?.scalingPlans).length) tocEntries.push({label:'Scaling Plans',id:'sec-scaling'});
+
   if(sec('sessions')&&sessions.length) tocEntries.push({label:'User Sessions',id:'sec-sessions'});
-  if(sec('rbac')) tocEntries.push({label:'RBAC Assignments',id:'sec-rbac'});
   if(sec('networking')&&hps.length) tocEntries.push({label:'Networking Configuration',id:'sec-networking'});
+  if(sec('rbac')) tocEntries.push({label:'RBAC Assignments',id:'sec-rbac'});  
+  
   if(sec('fslogix')) tocEntries.push({label:'FSLogix Profile Containers',id:'sec-fslogix'});
   if(sec('cost')&&s.costAvailable) tocEntries.push({label:'Cost & FinOps',id:'sec-cost'});
   if(sec('intelligence')) tocEntries.push({label:'AVD Diagnostics & Insights Coverage',id:'sec-intelligence'});
@@ -5033,7 +5035,7 @@ function rbBuildHTMLDoc(){
   if(sec('rdpanalysis')&&hps.some(hp=>Object.keys(hp.rdpPropertiesParsed||{}).length)) tocEntries.push({label:'Appendix B — RDP Properties Analysis',id:'sec-rdpanalysis'});
 
   // ── Document details table (after cover, before TOC) ──────────
-  const docDetailsHtml = `
+  /* const docDetailsHtml = `
   <div style="margin:0 0 28px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:18px 22px">
     <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#00a8cc;text-transform:uppercase;margin-bottom:10px">Document Details</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:11px">
@@ -5046,7 +5048,7 @@ function rbBuildHTMLDoc(){
       <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">SUBSCRIPTION</span><br><span style="font-size:10px">${esc(D?.subscriptionName||'—')}</span></div>
       <div><span style="color:#94a3b8;font-family:'Courier New',monospace;font-size:9px">TENANT</span><br><span style="font-size:10px">${esc(D?.tenantName||D?.tenantId||'—')}</span></div>
     </div>
-  </div>`;
+  </div>`; */
 
   const tocHtml = `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px 24px;margin:24px 0 32px">
     <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#00a8cc;text-transform:uppercase;margin-bottom:12px">Table of Contents</div>
@@ -5132,7 +5134,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:24px 0;}
   </div>
 
   <!-- Document details -->
-  ${docDetailsHtml}
+  <!--  ${docDetailsHtml} --->
 
   <!-- TOC -->
   ${tocHtml}
@@ -5154,180 +5156,6 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:24px 0;}
 </html>`;
 }
 
-// ── DOCX Builder — loads docx.js on demand to avoid CDN blocking ──
-async function rbBuildDOCX(sub){
-  // ── Try 3 CDNs for true .docx, silently fall back to .doc ──────
-  // No modals, no errors shown to user — best available format wins.
-
-  async function tryDocxCDN(){
-    const CDNS=[
-      'https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/index.min.js',
-      'https://unpkg.com/docx@8.5.0/build/index.min.js',
-      'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js',
-    ];
-    for(const url of CDNS){
-      try{
-        await new Promise((resolve,reject)=>{
-          const s=document.createElement('script');
-          s.src=url;
-          const t=setTimeout(()=>{s.onload=s.onerror=null;reject();},6000);
-          s.onload=()=>{clearTimeout(t);resolve();};
-          s.onerror=()=>{clearTimeout(t);reject();};
-          document.head.appendChild(s);
-        });
-        if(window.docx) return true; // loaded successfully
-      }catch(e){}
-    }
-    return false;
-  }
-
-  // Show loading state on button
-  const btn=$('rb-preview-btn');
-  const origBtnHtml=btn?btn.innerHTML:'';
-  if(btn) btn.innerHTML='⏳ Preparing Word file…';
-
-  const cdnLoaded = !window.docx ? await tryDocxCDN() : true;
-
-  if(cdnLoaded && window.docx){
-    // ── TRUE .docx via docx.js ─────────────────────────────────
-    if(btn) btn.innerHTML='⏳ Building .docx…';
-    try{
-      const { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell,
-              TableBorders, WidthType, BorderStyle, AlignmentType, PageBreak,
-              ShadingType, UnderlineType, Header, Footer } = window.docx;
-
-      const client  = rbMeta('rb-client') || D?.subscriptionName || '—';
-      const envName = rbMeta('rb-env')    || D?.subscriptionName || '—';
-      const author  = rbMeta('rb-author') || 'YGIT';
-      const version = rbMeta('rb-version')|| 'v1.0';
-      const docDate = rbMeta('rb-date')   || new Date().toLocaleDateString('en-AU');
-      const scope   = rbMeta('rb-scope');
-      const notes   = rbMeta('rb-notes');
-      const s       = D?.summary||{};
-      const cur     = s.currency||'';
-      const hps     = arr(D?.hostPools);
-      const ags     = arr(D?.applicationGroups);
-      const shs     = arr(D?.sessionHosts).length?arr(D?.sessionHosts):hps.flatMap(hp=>arr(hp.sessionHosts));
-      const sessions= arr(D?.sessions).length?arr(D?.sessions):hps.flatMap(hp=>arr(hp.sessionHosts).flatMap(sh=>arr(sh.sessions)));
-      const secFn   = id => rbState.sections.has(id);
-      const allF    = hps.flatMap(hp=>arr(hp.securityFindings));
-      const shutdownHosts = s.shutdownHosts||0;
-      const activeHosts   = (s.totalSessionHosts||0) - shutdownHosts;
-      const prodHps       = hps.filter(hp=>!/uat|dev|test/i.test(hp.name||''));
-      const prodPoolsWithoutScaling = prodHps.filter(hp=>!hp.hasScalingPlan).length;
-      const diagNote      = hps.length>prodHps.length?` (${hps.length-prodHps.length} non-prod excluded)`:'';
-      const proj    = costProjection(s.currentMonthCost, D?.generatedAt);
-
-      const C = {
-        CYAN:'0099BB',DARK:'0D1117',WHITE:'FFFFFF',LIGHT:'F8FAFC',
-        RED:'DC2626',RED_L:'FEE2E2',AMBER:'D97706',AMBER_L:'FEF3C7',
-        GREEN:'059669',GREEN_L:'D1FAE5',BLUE:'2563EB',BLUE_L:'DBEAFE',
-        PURPLE:'7C3AED',PURPLE_L:'EDE9FE',MUTED:'64748B',MUTED2:'94A3B8',BODY:'1E293B',
-      };
-      const sz=n=>n*2;
-      function run(text,opts={}){ return new TextRun({text:String(text??''),font:'Calibri',size:sz(11),color:C.BODY,...opts}); }
-      function runMono(text,opts={}){ return new TextRun({text:String(text??''),font:'Courier New',size:sz(9),color:C.MUTED,...opts}); }
-      function para(children,spacing={after:80},alignment){ const runs=Array.isArray(children)?children:[run(children)]; return new Paragraph({children:runs,spacing,alignment}); }
-      function pageBreak(){ return new Paragraph({children:[new PageBreak()],spacing:{after:0}}); }
-      function sectionH(num,title,subtitle){ return new Paragraph({children:[new TextRun({text:String(num).padStart(2,'0')+'  ',font:'Courier New',size:sz(11),color:C.CYAN,bold:true}),new TextRun({text:title,font:'Calibri',size:sz(16),bold:true,color:C.DARK}),...(subtitle?[new TextRun({text:'  '+subtitle,font:'Courier New',size:sz(9),color:C.MUTED2})]:[] )],border:{bottom:{style:BorderStyle.SINGLE,size:6,color:C.CYAN,space:4}},spacing:{before:sz(20),after:sz(10)}}); }
-      function subH(text,colour){ return new Paragraph({children:[new TextRun({text,font:'Calibri',size:sz(13),bold:true,color:colour||C.DARK})],spacing:{before:sz(12),after:sz(6)}}); }
-      function divider(){ return new Paragraph({border:{bottom:{style:BorderStyle.SINGLE,size:1,color:C.CYAN}},spacing:{after:120,before:120},children:[new TextRun('')]}); }
-      const NB={style:BorderStyle.NONE},THIN={style:BorderStyle.SINGLE,size:1,color:'E8EDF5'},CYANB={style:BorderStyle.SINGLE,size:2,color:C.CYAN};
-      function kvTable(pairs){ return new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:pairs.map((p,i)=>new TableRow({children:[new TableCell({children:[para([runMono(String(p[0]),{color:C.MUTED})],{after:0})],shading:{type:ShadingType.SOLID,fill:i%2===0?C.LIGHT:C.WHITE},borders:{top:NB,bottom:THIN,left:NB,right:NB},margins:{top:50,bottom:50,left:80,right:80},width:{size:35,type:WidthType.PERCENTAGE}}),new TableCell({children:[para([run(String(p[1]??'—'),{size:sz(10)})],{after:0})],shading:{type:ShadingType.SOLID,fill:i%2===0?C.LIGHT:C.WHITE},borders:{top:NB,bottom:THIN,left:NB,right:NB},margins:{top:50,bottom:50,left:80,right:80}})]})),spacing:{after:160}}); }
-      function dataTable(headers,rows){ const hRow=new TableRow({children:headers.map(h=>new TableCell({children:[para([runMono(h.toUpperCase(),{color:C.WHITE,bold:true})],{after:0})],shading:{type:ShadingType.SOLID,fill:C.DARK},borders:{top:NB,bottom:CYANB,left:NB,right:NB},margins:{top:60,bottom:60,left:80,right:80}})),tableHeader:true}); const dRows=rows.map((row,ri)=>new TableRow({children:row.map(cell=>new TableCell({children:[para([run(String(cell??'—'),{size:sz(10)})],{after:0})],shading:{type:ShadingType.SOLID,fill:ri%2===0?C.LIGHT:C.WHITE},borders:{top:NB,bottom:THIN,left:NB,right:NB},margins:{top:50,bottom:50,left:80,right:80}}))})); return new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[hRow,...dRows],spacing:{after:160}}); }
-      function kpiTable(boxes){ const cols={cyan:C.CYAN,green:C.GREEN,red:C.RED,amber:C.AMBER,blue:C.BLUE,purple:C.PURPLE,gray:C.MUTED},lightCols={cyan:'E0F9FF',green:C.GREEN_L,red:C.RED_L,amber:C.AMBER_L,blue:C.BLUE_L,purple:C.PURPLE_L,gray:C.LIGHT}; const cells=boxes.map(b=>{ const ac=cols[b.colour||'cyan'],bg=lightCols[b.colour||'cyan']; return new TableCell({children:[para([runMono(b.label.toUpperCase(),{letterSpacing:40})],{after:40}),para([new TextRun({text:String(b.value??'—'),font:'Calibri',size:sz(20),bold:true,color:ac})],{after:20}),...(b.sub?[para([runMono(b.sub)],{after:0})]:[] )],shading:{type:ShadingType.SOLID,fill:bg},borders:{top:{style:BorderStyle.SINGLE,size:6,color:ac},bottom:NB,left:NB,right:NB},margins:{top:80,bottom:80,left:80,right:80}}); }); while(cells.length<4)cells.push(new TableCell({children:[para('')],shading:{type:ShadingType.SOLID,fill:C.LIGHT},borders:{top:NB,bottom:NB,left:NB,right:NB}})); return new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({children:cells.slice(0,4)})],spacing:{after:160}}); }
-      function findingP(sev,text){ const cs={Critical:C.RED,High:C.AMBER,Medium:C.AMBER,Low:C.MUTED}; return new Paragraph({children:[runMono('['+sev.toUpperCase()+']  ',{color:cs[sev]||C.MUTED,bold:true}),run(text,{size:sz(10)})],border:{left:{style:BorderStyle.SINGLE,size:12,color:cs[sev]||C.MUTED,space:6}},indent:{left:120},spacing:{after:60}}); }
-
-      const children=[]; let secNum=1;
-      // Cover
-      children.push(para([runMono('YGIT AVD INTELLIGENCE  ·  v1.0',{color:C.CYAN,bold:true,letterSpacing:60})],{after:sz(8)}));
-      children.push(new Paragraph({border:{bottom:{style:BorderStyle.SINGLE,size:2,color:C.CYAN}},spacing:{after:sz(12)},children:[new TextRun('')]}));
-      children.push(para([new TextRun({text:client,font:'Calibri',size:sz(32),bold:true,color:C.DARK})],{after:sz(4)}));
-      children.push(para([run((D?.tenantName||D?.tenantId||'—')+' · Azure Virtual Desktop Environment Report',{color:C.MUTED,size:sz(12)})],{after:sz(16)}));
-      children.push(kvTable([['Version',version],['Date',docDate],['Prepared By',author],['Subscription',D?.subscriptionName||D?.subscriptionId||'—'],['Tenant',D?.tenantName||D?.tenantId||'—'],['Environment',envName],['Data Collected',D?.generatedAt?(new Date(D.generatedAt).toLocaleDateString('en-AU')):'—']]));
-      if(scope) children.push(para([runMono('Scope: ',{bold:true}),run(scope,{italics:true,color:C.MUTED})],{after:80}));
-      children.push(pageBreak());
-      // TOC
-      children.push(sectionH(0,'Table of Contents'));
-      children.push(para('',{after:80}));
-      const tocItems2=[{label:'Executive Summary'}];
-      if(secFn('overview')) tocItems2.push({label:'Infrastructure Overview'});
-      if(secFn('hostpools')&&hps.length) tocItems2.push({label:'Host Pools'});
-      if(secFn('scaling')&&arr(D?.scalingPlans).length) tocItems2.push({label:'Scaling Plans'});
-      if(secFn('workspaces')&&arr(D?.avdWorkspaces).length) tocItems2.push({label:'Workspaces'});
-      if(secFn('appgroups')&&ags.length) tocItems2.push({label:'Application Groups'});
-      if(secFn('applications')) tocItems2.push({label:'Published Applications'});
-      if(secFn('desktops')&&ags.filter(g=>g.applicationGroupType==='Desktop').length) tocItems2.push({label:'Session Desktops'});
-      if(secFn('sessionhosts')&&shs.length) tocItems2.push({label:'Session Hosts'});
-      if(secFn('sessions')&&sessions.length) tocItems2.push({label:'User Sessions'});
-      if(secFn('rbac')) tocItems2.push({label:'RBAC Assignments'});
-      if(secFn('networking')&&hps.length) tocItems2.push({label:'Networking Configuration'});
-      if(secFn('fslogix')) tocItems2.push({label:'FSLogix Profile Containers'});
-      if(secFn('cost')&&s.costAvailable) tocItems2.push({label:'Cost & FinOps'});
-      if(secFn('intelligence')&&D?.metrics?.querySupported) tocItems2.push({label:'KQL Analytics'});
-      if(arr(D?.resourceGroups).length&&secFn('rginventory')) tocItems2.push({label:'Appendix A — Resource Group Inventory'});
-      tocItems2.forEach((t,i)=>children.push(new Paragraph({children:[runMono(String(i+1).padStart(2,'0')+'  ',{color:C.CYAN}),run(t.label,{size:sz(11)})],spacing:{after:50}})));
-      children.push(pageBreak());
-      // Exec Summary
-      const critF=allF.filter(f=>f.severity==='Critical').length,highF=allF.filter(f=>f.severity==='High').length;
-      children.push(sectionH(secNum++,'Executive Summary'));
-      children.push(para([run('This document provides a technical assessment of the Azure Virtual Desktop environment for '),run(client,{bold:true}),run(', collected on '),run(D?.generatedAt?new Date(D.generatedAt).toLocaleDateString('en-AU'):docDate,{bold:true}),run(' and prepared by '),run(author,{bold:true}),run('.')],{after:100}));
-      children.push(para([run('The environment comprises '),run(String(s.hostPoolCount||0),{bold:true}),run(` host pool${(s.hostPoolCount||0)!==1?'s':''} hosting `),run(String(s.totalSessionHosts||0),{bold:true}),run(` session host${(s.totalSessionHosts||0)!==1?'s':''} with an overall health of `),run(String(s.overallHealthPct||0)+'%',{bold:true,color:s.overallHealthPct>=80?C.GREEN:s.overallHealthPct>=60?C.AMBER:C.RED}),run('. There are '),run(String(s.totalActiveSessions||0),{bold:true}),run(' active and '),run(String(s.totalDisconnectedSessions||0),{bold:true}),run(' disconnected sessions.')],{after:100}));
-      if(allF.length) children.push(para([new TextRun({text:`⚠  ${allF.length} finding${allF.length!==1?'s':''} identified — ${critF} critical, ${highF} high`,font:'Calibri',size:sz(11),bold:true,color:critF>0?C.RED:C.AMBER})],{after:80}));
-      else children.push(para([run('✓  No security findings identified.',{bold:true,color:C.GREEN})],{after:80}));
-      if(s.costAvailable&&s.currentMonthCost!=null){ const p2=costProjection(s.currentMonthCost,D?.generatedAt); children.push(para(`Month-to-date AVD spend is ${cur} ${s.currentMonthCost.toFixed(2)}${p2?`, tracking to ~${cur} ${p2.toFixed(2)} by end of month`:''}${s.previousMonthCost&&p2?` (${p2>s.previousMonthCost?'↑':'↓'}${Math.abs(Math.round(((p2-s.previousMonthCost)/s.previousMonthCost)*100))}% vs last month)`:''}.`,{after:100})); }
-      if(scope){ children.push(divider()); children.push(para([runMono('Scope: ',{bold:true}),run(scope,{italics:true})],{after:80})); }
-      children.push(kpiTable([{label:'Host Pools',value:s.hostPoolCount||0,sub:`${s.pooledHostPools||0} pooled`,colour:'cyan'},{label:'Session Hosts',value:s.totalSessionHosts||0,sub:`${s.availableHosts||0} avail · ${shutdownHosts} off`,colour:s.overallHealthPct>=80?'green':'amber'},{label:'Active Sessions',value:s.totalActiveSessions||0,sub:`${s.totalDisconnectedSessions||0} disc`,colour:'blue'},{label:'Health',value:(s.overallHealthPct||0)+'%',sub:`${prodHps.filter(hp=>hp.diagnosticsEnabled).length}/${prodHps.length} diag${diagNote}`,colour:s.overallHealthPct>=80?'green':s.overallHealthPct>=60?'amber':'red'}]));
-      if(s.costAvailable) children.push(kpiTable([{label:'Prev Month',value:s.previousMonthCost!=null?`${cur} ${s.previousMonthCost.toFixed(0)}`:'—',sub:s.previousMonthFrom||'not collected',colour:'gray'},{label:'This Month MTD',value:`${cur} ${s.currentMonthCost?.toFixed(0)||'—'}`,sub:'month to date',colour:'cyan'},{label:'Projected EOM',value:costProjection(s.currentMonthCost,D?.generatedAt)?`${cur} ${costProjection(s.currentMonthCost,D?.generatedAt).toFixed(0)}`:'—',sub:'estimate',colour:'amber'},{label:'Wasted Spend',value:s.wastedSpendEstimate?`${cur} ${s.wastedSpendEstimate.toFixed(0)}`:'—',sub:`${s.wastedSpendHosts||0} idle`,colour:s.wastedSpendEstimate>0?'amber':'green'}]));
-      children.push(pageBreak());
-      // Overview
-      if(secFn('overview')){ children.push(sectionH(secNum++,'Infrastructure Overview',D?.subscriptionName||'')); children.push(kvTable([['Subscription',D?.subscriptionName||D?.subscriptionId||'—'],['Tenant',D?.tenantName||D?.tenantId||'—'],['Data Collected',D?.generatedAt?(new Date(D.generatedAt).toLocaleString()):'—'],['Host Pools',`${s.hostPoolCount||0} (${s.pooledHostPools||0} pooled, ${s.personalHostPools||0} personal)`],['Session Hosts',`${s.totalSessionHosts||0} (${s.availableHosts||0} available)`],['Active Sessions',s.totalActiveSessions||0],['Application Groups',s.applicationGroupCount||0],['Scaling Plans',`${s.scalingPlanCount||0} (${prodPoolsWithoutScaling} prod pools without)`],['FSLogix',`${s.hostsWithFSLogixDetected||0} of ${s.totalSessionHosts||0} hosts`],['Health',`${s.overallHealthPct||0}%`]])); if(allF.length){children.push(subH('Security Findings',C.RED));allF.forEach(f=>children.push(findingP(f.severity,f.finding)));} }
-      // Host Pools
-      if(secFn('hostpools')&&hps.length){ children.push(pageBreak()); children.push(sectionH(secNum++,'Host Pools',`${hps.length} pool${hps.length!==1?'s':''}`)); children.push(kpiTable([{label:'Total',value:hps.length,sub:`${s.pooledHostPools||0} pooled`,colour:'cyan'},{label:'Capacity',value:hps.reduce((a,hp)=>a+(hp.totalCapacity||0),0),sub:'max sessions',colour:'blue'},{label:'Active Sessions',value:s.totalActiveSessions||0,colour:'green'},{label:'Drain Mode',value:s.drainModeHosts||0,colour:(s.drainModeHosts||0)>0?'amber':'green'}])); hps.forEach(hp=>{ const hpF=arr(hp.securityFindings); children.push(subH(`${hp.name}  [${hp.hostPoolType}]`,C.CYAN)); children.push(kvTable([...(hp.friendlyName&&hp.friendlyName!==hp.name?[['Friendly Name',hp.friendlyName]]:[]),['Resource Group',hp.resourceGroup||'—'],['Location',hp.location||'—'],['Load Balancer',hp.loadBalancerType||'—'],['Max Sessions',hp.maxSessionLimit??'—'],['Preferred App Type',hp.preferredAppGroupType||'—'],['Public Network',hp.publicNetworkAccess===false?'Private Only':'Enabled'],['Start VM on Connect',hp.startVMOnConnect?'Enabled':'Disabled'],['Session Hosts',`${hp.sessionHostCount||0} (${hp.sessionHostsAvailable||0} avail)`],['Active / Disc.',`${hp.activeSessions||0} active · ${hp.disconnectedSessions||0} disconnected`],['Health',`${hp.healthPct??0}%`],['Diagnostics',hp.diagnosticsEnabled?'Enabled':'Not configured'],['Scaling Plan',arr(hp.scalingPlans).map(sp=>sp.name).join(', ')||'None'],...( hp.description?[['Description',hp.description]]:[]),...( Object.keys(hp.tags||{}).length?[['Tags',Object.entries(hp.tags).map(([k,v])=>k+': '+v).join(', ')]]:[]),['Resource ID',hp.id||'—']])); if(hpF.length) hpF.forEach(f=>children.push(findingP(f.severity,f.finding))); }); }
-      // Session Hosts
-      if(secFn('workspaces')&&arr(D?.avdWorkspaces).length){ const wssD=arr(D?.avdWorkspaces); children.push(pageBreak()); children.push(sectionH(secNum++,'Workspaces',`${wssD.length} workspace${wssD.length!==1?'s':''}`)); wssD.forEach(ws=>{ const wsAgsD=ags.filter(ag=>ag.workspaceId===ws.id||ag.workspaceName===ws.name); children.push(subH((ws.friendlyName&&ws.friendlyName!==ws.name?ws.friendlyName+' ('+ws.name+')':ws.name),C.CYAN)); children.push(kvTable([['Resource Group',ws.resourceGroup||'—'],['Location',ws.location||'—'],['Friendly Name',ws.friendlyName||'—'],['Diagnostics',ws.diagnosticsEnabled?'Enabled':'Not Configured'],['App Groups',wsAgsD.map(ag=>ag.name).join(', ')||'None'],...(ws.description?[['Description',ws.description]]:[]),...(Object.keys(ws.tags||{}).length?[['Tags',Object.entries(ws.tags).map(([k,v])=>k+': '+v).join(', ')]]:[]),['Resource ID',ws.id||'—']])); }); }
-      const deskAgsD=ags.filter(g=>g.applicationGroupType==='Desktop');
-      if(secFn('appgroups')&&ags.length){ children.push(pageBreak()); children.push(sectionH(secNum++,'Application Groups',`${ags.length} group${ags.length!==1?'s':''}`)); ags.forEach(ag=>{ const allA=[...arr(ag.assignedUsers),...arr(ag.assignedGroups)]; children.push(subH(ag.name,C.CYAN)); children.push(kvTable([['Type',ag.applicationGroupType||'—'],['Host Pool',ag.hostPoolName||'—'],['Workspace',ag.workspaceFriendlyName||ag.workspaceName||'—'],['Resource Group',ag.resourceGroup||'—'],['Location',ag.location||'—'],['Diagnostics',ag.diagnosticsEnabled?'Enabled':'Not Configured'],['Assignees',allA.length+' ('+arr(ag.assignedGroups).length+' groups, '+arr(ag.assignedUsers).length+' users)'],...(ag.description?[['Description',ag.description]]:[]),...(Object.keys(ag.tags||{}).length?[['Tags',Object.entries(ag.tags).map(([k,v])=>k+': '+v).join(', ')]]:[]),['Resource ID',ag.id||'—']])); }); }
-      if(secFn('desktops')&&deskAgsD.length){ children.push(pageBreak()); children.push(sectionH(secNum++,'Session Desktops',`${deskAgsD.length} desktop${deskAgsD.length!==1?'s':''}`)); children.push(dataTable(['Name','Friendly Name','Workspace','Host Pool','Show in Portal','Assignees'],deskAgsD.map(ag=>[esc(ag.name||'—'),esc(ag.friendlyName&&ag.friendlyName!==ag.name?ag.friendlyName:'—'),esc(ag.workspaceFriendlyName||ag.workspaceName||'—'),esc(ag.hostPoolName||'—'),ag.showInPortal!==false?'Visible':'Hidden',[...arr(ag.assignedUsers),...arr(ag.assignedGroups)].length+' assigned']))); }
-      if(secFn('sessionhosts')&&shs.length){ const avail=shs.filter(s=>s.status==='Available').length,unavail=shs.filter(s=>s.status==='Unavailable').length,drain=shs.filter(s=>s.drainMode).length; children.push(pageBreak()); children.push(sectionH(secNum++,'Session Hosts',`${shs.length} host${shs.length!==1?'s':''}`)); children.push(kpiTable([{label:'Available',value:avail,sub:`of ${shs.length}`,colour:avail===shs.length?'green':'amber'},{label:'Unavailable',value:unavail,colour:unavail>0?'red':'green'},{label:'Drain Mode',value:drain,colour:drain>0?'amber':'green'},{label:'FSLogix',value:(s.hostsWithFSLogixDetected||0)+'/'+shs.length,colour:s.hostsWithFSLogixDetected===shs.length?'green':'amber'}])); children.push(dataTable(['Session Host','Host Pool','Status','VM Size','Sessions','Patch','FSLogix'],shs.map(sh=>{const ps=patchStatus(sh.lastUpdate);return[sh.vmName||sh.name||'—',sh.hostPoolName||'—',sh.status||'—',sh.vmSize||'—',(sh.activeSessions||0)+' active',ps.label,sh.fslogixDetected?'✓':'—'];}))); }
-      // Scaling Plans
-      if(secFn('scaling')&&arr(D?.scalingPlans).length){ const spsW=arr(D.scalingPlans); children.push(pageBreak()); children.push(sectionH(secNum++,'Scaling Plans',`${spsW.length} plan${spsW.length!==1?'s':''}`)); spsW.forEach(sp=>{ children.push(subH(sp.name,C.CYAN)); children.push(kvTable([['Resource Group',sp.resourceGroup||'—'],['Location',sp.location||'—'],['Host Pool Type',sp.hostPoolType||'—'],['Host Pools',arr(sp.hostPoolReferences).map(r=>r.hostPoolId.split('/').pop()).join(', ')||'—'],...(Object.keys(sp.tags||{}).length?[['Tags',Object.entries(sp.tags).map(([k,v])=>k+': '+v).join(', ')]]:[]),['Resource ID',sp.id||'—']])); }); }
-      // Applications
-      if(secFn('applications')){ const allApps=ags.filter(g=>g.applicationGroupType==='RemoteApp').flatMap(g=>arr(g.remoteApps).map(a=>({...a,agName:g.name,agHostPool:g.hostPoolName}))); if(allApps.length){ children.push(pageBreak()); children.push(sectionH(secNum++,'Published Applications',`${allApps.length} app${allApps.length!==1?'s':''}`)); children.push(dataTable(['Application','Friendly Name','App Group','File Path','Visible'],allApps.map(a=>[a.name?.split('/').pop()||'—',a.friendlyName||'—',a.agName||'—',a.filePath||'—',a.showInPortal?'Yes':'No']))); } }
-      // User Sessions
-      if(secFn('sessions')&&sessions.length){ const active=sessions.filter(s=>s.sessionState==='Active'),disc=sessions.filter(s=>s.sessionState==='Disconnected'); children.push(pageBreak()); children.push(sectionH(secNum++,'User Sessions',`${sessions.length} session${sessions.length!==1?'s':''}`)); children.push(kpiTable([{label:'Total',value:sessions.length,colour:'cyan'},{label:'Active',value:active.length,colour:'green'},{label:'Disconnected',value:disc.length,colour:disc.length>0?'amber':'green'},{label:'Unique Users',value:new Set(sessions.map(s=>s.userPrincipalName).filter(Boolean)).size,colour:'blue'}])); children.push(dataTable(['User','State','Session Host','Host Pool','Type','Connected'],sessions.map(s=>[s.userPrincipalName||'Unknown',s.sessionState||'—',(s.sessionHostName||'—').split('.')[0],s.hostPoolName||'—',s.applicationType||'Desktop',s.createTime||'—']))); }
-      // RBAC
-      if(secFn('rbac')){ const all=ags.flatMap(ag=>[...arr(ag.assignedUsers),...arr(ag.assignedGroups)].map(a=>({...a,scope:ag.name}))); if(all.length){ const groups=all.filter(a=>a.objectType==='Group').length,direct=all.filter(a=>a.objectType==='User').length; children.push(pageBreak()); children.push(sectionH(secNum++,'RBAC Assignments',`${all.length} total`)); children.push(para([run('⚠ Only AVD-specific roles are shown (Desktop Virtualization & VM Login roles). Subscription-level roles (Owner, Contributor, Reader) are excluded — review Azure RBAC for full inheritance.',{color:'#92400e',size:sz(8)})],{before:sz(2),after:sz(4)})); children.push(kpiTable([{label:'Total',value:all.length,colour:'cyan'},{label:'Groups',value:groups,colour:'green'},{label:'Direct Users',value:direct,colour:direct>0?'amber':'green'},{label:'Roles',value:new Set(all.map(a=>a.role).filter(Boolean)).size,colour:'blue'}])); children.push(dataTable(['Principal','Type','Role','Scope'],all.map(a=>[a.displayName||a.signInName||a.objectId||'—',a.objectType||'—',a.role||'—',a.scope||'—']))); } }
-      // Networking
-      if(secFn('networking')&&hps.length){ const netW=D?.networking||null; children.push(pageBreak()); children.push(sectionH(secNum++,'Networking Configuration')); children.push(kpiTable([{label:'Host Pools',value:hps.length,colour:'cyan'},{label:'vNets',value:netW?arr(netW.virtualNetworks).length:0,colour:'blue'},{label:'NAT Gateways',value:netW?arr(netW.natGateways).length:0,colour:arr(netW?.natGateways).length>0?'green':'amber'},{label:'Session Hosts with IP',value:shs.filter(s=>s.privateIP&&s.privateIP!=='Not assigned').length,colour:'green'}])); children.push(subH('Host Pool Configuration')); children.push(dataTable(['Host Pool','Type','Load Balancer','Max Sessions','Start VM on Connect'],hps.map(hp=>[hp.name,hp.hostPoolType||'—',hp.loadBalancerType||'—',hp.maxSessionLimit??'—',hp.startVMOnConnect?'Yes':'No']))); const shsWithIP=shs.filter(s=>s.privateIP&&s.privateIP!=='Not assigned'); if(shsWithIP.length){ children.push(subH('Session Host Network Details')); children.push(dataTable(['Session Host','Host Pool','Private IP','vNet','Subnet'],shsWithIP.map(sh=>[sh.vmName||sh.name||'—',sh.hostPoolName||'—',sh.privateIP||'—',sh.virtualNetwork||'—',sh.subnet||'—']))); } if(netW&&arr(netW.virtualNetworks).length){ children.push(subH('Virtual Network Summary')); arr(netW.virtualNetworks).forEach(function(vnet){ const natNames=[...new Set(arr(vnet.subnets).map(function(s){return s.natGatewayName;}).filter(Boolean))]; children.push(para([run(vnet.name,{bold:true,color:C.CYAN})],{after:sz(2)})); children.push(kvTable([['Location',vnet.location||'—'],['Subnets',arr(vnet.subnets).length],['NAT Gateway',natNames.join(', ')||'None — default SNAT'],['AVD Subnets',arr(vnet.subnets).filter(function(s){return s.sessionHostCount>0;}).map(function(s){return s.name+'('+s.sessionHostCount+' hosts)';}).join(', ')||'—']])); }); } }
-      // Cost
-      if(secFn('cost')&&s.costAvailable){ const hpCosts=hps.filter(hp=>hp.currentMonthCost!=null).sort((a,b)=>b.currentMonthCost-a.currentMonthCost); const p3=costProjection(s.currentMonthCost,D?.generatedAt); children.push(pageBreak()); children.push(sectionH(secNum++,'Cost & FinOps','Month-to-Date')); children.push(kpiTable([{label:'Prev Month',value:s.previousMonthCost!=null?`${cur} ${s.previousMonthCost.toFixed(0)}`:'—',colour:'gray'},{label:'MTD',value:`${cur} ${s.currentMonthCost?.toFixed(0)||'—'}`,colour:'cyan'},{label:'Projected EOM',value:p3?`${cur} ${p3.toFixed(0)}`:'—',colour:'amber'},{label:'Wasted',value:s.wastedSpendEstimate?`${cur} ${s.wastedSpendEstimate.toFixed(0)}`:'—',colour:s.wastedSpendEstimate>0?'amber':'green'}])); if(s.previousMonthCost!=null&&p3!=null){const delta=p3-s.previousMonthCost,pct=Math.round((delta/s.previousMonthCost)*100);children.push(para([new TextRun({text:(delta>0?'↑ ':'↓ '),font:'Calibri',size:sz(14),bold:true,color:delta>0?C.RED:C.GREEN}),run(`${delta>0?'+':''}${cur} ${Math.abs(delta).toFixed(2)} (${delta>0?'+':''}${pct}%) vs last month`,{bold:true,color:delta>0?C.RED:C.GREEN})],{after:100}));} if(hpCosts.length){children.push(subH('Cost by Host Pool'));children.push(dataTable(['Host Pool','Cost MTD','% of Total'],hpCosts.map(hp=>[hp.name,`${cur} ${hp.currentMonthCost.toFixed(2)}`,Math.round((hp.currentMonthCost/(s.currentMonthCost||1))*100)+'%'])));} }
-      // FSLogix
-      if(secFn('fslogix')){ const fc=D?.fslogixCoverage||{},covPct=fc.coveragePct??0,sas=arr(fc.storageAccounts); children.push(pageBreak()); children.push(sectionH(secNum++,'FSLogix Profile Containers')); children.push(kpiTable([{label:'Coverage',value:covPct+'%',sub:`${fc.hostsWithFSLogix||0}/${fc.totalHosts||shs.length}`,colour:covPct>=80?'green':covPct>=50?'amber':'red'},{label:'With',value:fc.hostsWithFSLogix||0,colour:'green'},{label:'Without',value:arr(fc.hostsWithout).length||0,colour:arr(fc.hostsWithout).length>0?'amber':'green'},{label:'Slow Mounts',value:arr(D?.metrics?.fslogixSlowMounts).length||0,colour:arr(D?.metrics?.fslogixSlowMounts).length>0?'amber':'green'}])); if(arr(fc.hostsWithout).length) children.push(para([runMono('Hosts without FSLogix: ',{bold:true,color:C.AMBER}),run(arr(fc.hostsWithout).join(', '),{color:C.MUTED})],{after:80})); if(fc.fslogixCoverageNote) children.push(para([run(fc.fslogixCoverageNote,{italics:true,color:C.MUTED,size:sz(10)})],{after:80})); if(sas.length){ children.push(para([runMono('PROFILE STORAGE ACCOUNTS',{bold:true,letterSpacing:40,color:C.CYAN})],{before:sz(8),after:sz(4)})); sas.forEach(sa=>{ children.push(para([run(sa.storageAccount,{bold:true,size:sz(11)}),run('  '+sa.sku+'  '+sa.resourceGroup+' · '+sa.location,{size:sz(9),color:C.MUTED})],{after:sz(2)})); if(sa.storageAccountUrl) children.push(para([runMono('Storage URL: ',{bold:true,size:sz(9)}),runMono(sa.storageAccountUrl,{color:C.CYAN,size:sz(9)})],{after:sz(2)})); const shares=arr(sa.shares); if(shares.length) children.push(dataTable(['Share Name','Quota (GiB)','Used (GiB)','Utilisation','Tier','Share URL'],shares.map(sh=>{ const pct=sh.quotaGiB>0?Math.round((sh.usedGiB/sh.quotaGiB)*100)+'%':'—'; return[sh.name||'—',sh.quotaGiB||'No quota',sh.usedGiB??'—',pct,sh.tier||'—',sh.shareUrl||'—']; }))); }); } }
-      // RG Inventory
-      const rgsData2=arr(D?.resourceGroups).filter(rg=>rg!=null); if(rgsData2.length&&secFn('rginventory')){ children.push(pageBreak()); children.push(sectionH(secNum++,'Appendix A — Resource Group Inventory',`${rgsData2.reduce((a,rg)=>a+(rg.resourceCount||arr(rg.resources).length),0)} resources`)); rgsData2.forEach(rg=>{ const res=arr(rg.resources); children.push(subH(`${rg.name}  (${rg.resourceCount||res.length} resources)`)); children.push(dataTable(['Resource','Type','Location'],res.map(r=>[r.name,r.shortType||'—',r.location||'—']))); }); }
-      // Footer
-      children.push(divider()); children.push(new Paragraph({children:[new TextRun({text:'Generated by YGIT AVD Intelligence v5.0  ·  '+new Date().toLocaleString(),font:'Courier New',size:sz(8),color:C.MUTED2,italics:true})],alignment:AlignmentType.CENTER,spacing:{before:120}}));
-
-      const doc=new Document({creator:author,title:`${client} — AVD Documentation`,styles:{default:{document:{run:{font:'Calibri',size:sz(11),color:C.BODY}}}},sections:[{properties:{page:{size:{width:12240,height:15840},margin:{top:720,bottom:720,left:900,right:900}}},children}]});
-      const blob=await Packer.toBlob(doc);
-      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='YGIT-AVDIntelligence-'+sub+'.docx';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
-      if(btn){ btn.innerHTML='✓ Downloaded .docx'; setTimeout(()=>rbSetPreviewBtn(rbState.dirty),2500); }
-      return;
-    }catch(err){
-      console.warn('docx.js build failed, falling back to .doc:',err);
-    }
-  }
-
-  // ── Fallback: HTML-to-Word .doc (works offline, no CDN needed) ─
-  const htmlDoc=rbBuildHTMLDoc();
-  const wordDoc=`<!DOCTYPE html>\n<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">\n<head><meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]--><style>@page{size:A4;margin:2cm 2.5cm;mso-page-orientation:portrait;}body{font-family:Calibri,sans-serif;font-size:11pt;}.cover{background:#0A1020!important;-webkit-print-color-adjust:exact;}</style></head>\n<body>${htmlDoc.replace(/^[\s\S]*?<body[^>]*>/,'').replace(/<\/body>[\s\S]*$/,'')}</body></html>`;
-  const blob=new Blob([wordDoc],{type:'application/vnd.ms-word;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='YGIT-AVDIntelligence-'+sub+'.doc';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
-  if(btn){ btn.innerHTML='✓ Downloaded .doc — open in Word, Save As .docx'; setTimeout(()=>rbSetPreviewBtn(rbState.dirty),3500); }
-}
 
 
 // ═══════════════════════════════════════════════════════════════════
