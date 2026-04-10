@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> dive in button | Azure AVD Intelligence - Quick Report</title>
+<title> Quick Report button | Azure AVD Intelligence - Quick Report</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -62,7 +62,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);
   border-radius:6px;padding:8px 16px;font-family:var(--font-mono);
   font-size:11px;color:#00d4ff;cursor:pointer;transition:all 0.2s;
-  font-weight:600;letter-spacing:0.5px;margin-left:auto;
+  font-weight:600;letter-spacing:0.5px;
 }
 .dive-in-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
 .dive-in-btn.secure-exit{
@@ -630,9 +630,10 @@ body.light body::before{ opacity:0.05; }
 
 /* ── Resize handle ── */
 .rb-resize-handle{
-  position:absolute;top:60px;bottom:0;left:380px;width:12px;
-  background:transparent;cursor:ew-resize;z-index:100;
+  position:absolute;top:60px;bottom:0;left:0;width:12px;
+  background:transparent;cursor:ew-resize;z-index:101;
   border-left:2px solid var(--border);
+  transform:translateX(380px);
 }
 .rb-resize-handle:hover,.rb-resize-handle:active{
   background:var(--cyan);border-left-color:var(--cyan);
@@ -887,9 +888,6 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
       </div>
     </div>
     <div class="header-sep"></div>
-    <button id="dive-in-btn" class="dive-in-btn" onclick="handleDiveInClick()">
-      🔓 Dive In
-    </button>
     <div class="header-meta" id="hdr-meta">
       <span><span class="lbl">SUB</span><span class="val" id="hdr-sub">—</span></span>
       <span><span class="lbl">TENANT</span><span class="val" id="hdr-tenant">—</span></span>
@@ -897,6 +895,9 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
       <span><span class="lbl">SYDNEY</span><span class="val" id="sydney-clock" style="color:var(--cyan);font-weight:600">--:--</span></span>
     </div>
     <div class="header-spacer"></div>
+    <button id="dive-in-btn" class="dive-in-btn" onclick="secureExitClick()" style="display:none">
+      🔒 Secure Exit
+    </button>
     <span id="hdr-status" class="status-idle">AWAITING DATA</span>
     <span id="kb-hint" style="display:none;font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:1px" title="Keyboard shortcuts: 0=Overview, 1=Host Pools … 9=RG Inventory · / focus search · Esc close">⌨ 0-9 · /</span>
     <button class="hdr-btn export-btn" onclick="openExportModal()" id="export-btn" style="display:none">📄 Build Report</button>
@@ -979,8 +980,8 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
               <li><span class="lp-cap-icon">✓</span>No sidebar — straight to report builder &amp; export</li>
               <li><span class="lp-cap-icon">✓</span>Ideal for recurring client documentation</li>
             </ul>
-            <button class="lp-mode-btn" onclick="alert('Click the 🔓 Dive In button in the top-right corner to begin →')">
-              Click Dive In to Generate AVD Document
+            <button class="lp-mode-btn" onclick="startQuickReport()">
+              🔓 Generate AVD Document
             </button>
           </div>
         </div>
@@ -3530,7 +3531,7 @@ function rbOpen(){
         const delta = me.clientX - startX;
         const newWidth = Math.max(320, Math.min(800, startWidth + delta));
         body.style.gridTemplateColumns = newWidth + 'px 1fr';
-        handle.style.left = newWidth + 'px';
+        handle.style.transform = 'translateX(' + newWidth + 'px)';
       }
       function onUp(){
         document.removeEventListener('mousemove', onMove);
@@ -5565,12 +5566,8 @@ function liveLogDone() {
 let autoLogoutTimer = null;
 let isLoggedIn = false;
 
-function handleDiveInClick() {
-  if (isLoggedIn) {
-    secureExit();
-  } else {
-    startQuickReport();
-  }
+function secureExitClick() {
+  secureExit();
 }
 
 function secureExit() {
@@ -5590,7 +5587,7 @@ function secureExit() {
     // Reset button
     const btn = document.getElementById('dive-in-btn');
     if (btn) {
-      btn.textContent = '🔓 Dive In';
+      btn.style.display = 'none';
       btn.classList.remove('secure-exit');
     }
     // Reset UI
@@ -5602,10 +5599,28 @@ function secureExit() {
 
 function startAutoLogoutTimer() {
   if (autoLogoutTimer) clearTimeout(autoLogoutTimer);
+  const duration = 120 * 60 * 1000; // 120 minutes
+  const startTime = Date.now();
+  
+  // Log countdown every minute
+  const logInterval = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const remaining = Math.max(0, duration - elapsed);
+    const mins = Math.floor(remaining / 60000);
+    if (remaining > 0) {
+      console.log(`⏱ Auto-logout in ${mins} minute${mins !== 1 ? 's' : ''}`);
+    } else {
+      clearInterval(logInterval);
+    }
+  }, 60000); // Every 60 seconds
+  
   autoLogoutTimer = setTimeout(() => {
-    alert('Session expired after 5 minutes of inactivity.');
+    clearInterval(logInterval);
+    alert('Session expired after 120 minutes of inactivity.');
     secureExit();
-  }, 5 * 60 * 1000); // 5 minutes
+  }, duration);
+  
+  console.log('⏱ Auto-logout timer started: 120 minutes');
 }
 
 async function startQuickReport() {
@@ -5625,6 +5640,11 @@ async function startQuickReport() {
       account: login.account
     });
     qrToken = token.accessToken;
+    
+    // Show popup about Secure Exit
+    setTimeout(() => {
+      alert('Connected successfully!\n\nClick "Secure Exit" in the top-right corner to disconnect when finished.');
+    }, 500);
 
     const resp = await fetch('https://management.azure.com/subscriptions?api-version=2022-12-01',
       { headers: { Authorization: 'Bearer ' + qrToken } });
@@ -6379,6 +6399,7 @@ async function qrCollect() {
       isLoggedIn = true;
       const btn = document.getElementById('dive-in-btn');
       if (btn) {
+        btn.style.display = 'block';
         btn.textContent = '🔒 Secure Exit';
         btn.classList.add('secure-exit');
       }
