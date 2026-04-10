@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 25 dark mode | Azure AVD Intelligence - Quick Report</title>
+<title> 26 light mode | Azure AVD Intelligence - Quick Report</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -615,11 +615,11 @@ body.light body::before{ opacity:0.05; }
   background:var(--bg-panel);flex-shrink:0;
 }
 .rb-title{font-family:var(--font-display);font-weight:800;font-size:17px;letter-spacing:2px;text-transform:uppercase;color:var(--text-primary);flex:1;}
-.rb-body{display:grid;grid-template-columns:600px 1fr;flex:1;overflow:hidden;}
+.rb-body{display:grid;grid-template-columns:380px 1fr;flex:1;overflow:hidden;}
 
 /* ── Resize handle ── */
 .rb-resize-handle{
-  position:absolute;top:60px;bottom:0;width:6px;
+  position:absolute;top:60px;bottom:0;left:380px;width:6px;
   background:transparent;cursor:ew-resize;z-index:100;
   border-left:1px solid var(--border);
 }
@@ -5125,8 +5125,8 @@ function rbBuildHTMLDoc(){
   // ── CSS ───────────────────────────────────────────────────────
   const css = `
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0c10;color:#e8edf5;font-size:13px;line-height:1.7;}
-body.theme-light{background:#f0f3f8;color:#1a2030;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f3f8;color:#1a2030;font-size:13px;line-height:1.7;}
+body.theme-dark{background:#0a0c10;color:#e8edf5;}
 .doc-wrap{max-width:960px;margin:0 auto;padding:32px 24px 64px;}
 /* Theme toggle */
 .theme-toggle{position:fixed;top:20px;right:20px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:6px;padding:8px 14px;font-family:'Courier New',monospace;font-size:10px;color:#00d4ff;cursor:pointer;z-index:9999;transition:all 0.2s;}
@@ -5147,23 +5147,23 @@ body.theme-light{background:#f0f3f8;color:#1a2030;}
 .cover-meta-item label{display:block;font-family:'Courier New',monospace;font-size:8px;letter-spacing:2px;color:rgba(0,212,255,0.5);text-transform:uppercase;margin-bottom:3px;}
 .cover-meta-item span{font-size:11px;color:rgba(255,255,255,0.75);}
 .cover-scope{margin:0 44px 28px;padding:10px 14px;background:rgba(255,255,255,0.04);border-left:3px solid rgba(0,212,255,0.4);font-size:11px;color:rgba(255,255,255,0.55);position:relative;z-index:1;border-radius:0 4px 4px 0;}
-/* Tables - dark theme */
+/* Tables - light theme default */
 table{width:100%;border-collapse:collapse;margin:10px 0;font-size:11px;border-radius:6px;overflow:hidden;}
 thead tr{background:#0d1117;}
 th{color:#e8edf5;font-family:'Courier New',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;padding:7px 10px;text-align:left;font-weight:600;}
-td{padding:7px 10px;border-bottom:1px solid #1f2937;vertical-align:top;color:#d1d5db;}
+td{padding:7px 10px;border-bottom:1px solid #e8edf5;vertical-align:top;color:#1e293b;}
 tr:last-child td{border-bottom:none;}
-tbody tr:nth-child(even) td{background:rgba(255,255,255,0.02);}
-code{background:#1f2937;padding:1px 5px;border-radius:3px;font-size:10px;font-family:'Courier New',monospace;color:#60a5fa;}
-hr{border:none;border-top:1px solid #1f2937;margin:24px 0;}
-/* Light theme overrides */
-body.theme-light td{border-bottom:1px solid #e8edf5;color:#1e293b;}
-body.theme-light tbody tr:nth-child(even) td{background:#f8fafc;}
-body.theme-light code{background:#f1f5f9;color:#0055aa;}
-body.theme-light hr{border-top-color:#e2e8f0;}
+tbody tr:nth-child(even) td{background:#f8fafc;}
+code{background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:10px;font-family:'Courier New',monospace;color:#0055aa;}
+hr{border:none;border-top:1px solid #e2e8f0;margin:24px 0;}
+/* Dark theme overrides */
+body.theme-dark td{border-bottom:1px solid #1f2937;color:#d1d5db;}
+body.theme-dark tbody tr:nth-child(even) td{background:rgba(255,255,255,0.02);}
+body.theme-dark code{background:#1f2937;color:#60a5fa;}
+body.theme-dark hr{border-top-color:#1f2937;}
 /* Footer */
-.doc-footer{margin-top:48px;padding-top:14px;border-top:1px solid #1f2937;display:flex;justify-content:space-between;font-family:'Courier New',monospace;font-size:9px;color:#94a3b8;letter-spacing:0.5px;}
-body.theme-light .doc-footer{border-top-color:#e2e8f0;}
+.doc-footer{margin-top:48px;padding-top:14px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-family:'Courier New',monospace;font-size:9px;color:#94a3b8;letter-spacing:0.5px;}
+body.theme-dark .doc-footer{border-top-color:#1f2937;}
 @media print{
   body{background:#fff !important;color:#1a2030 !important;}
   .theme-toggle{display:none;}
@@ -5185,7 +5185,7 @@ body.theme-light .doc-footer{border-top-color:#e2e8f0;}
 <style>${css}</style>
 </head>
 <body>
-<button class="theme-toggle" onclick="document.body.classList.toggle('theme-light');this.textContent=document.body.classList.contains('theme-light')?'🌙 DARK MODE':'☀ LIGHT MODE'">☀ LIGHT MODE</button>
+<button class="theme-toggle" onclick="document.body.classList.toggle('theme-dark');this.textContent=document.body.classList.contains('theme-dark')?'☀ LIGHT MODE':'🌙 DARK MODE'">🌙 DARK MODE</button>
 <div class="doc-wrap">
 
   <!-- Cover page -->
