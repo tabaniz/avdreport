@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 26 light mode | Azure AVD Intelligence - Quick Report</title>
+<title> dive in button | Azure AVD Intelligence - Quick Report</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -58,6 +58,17 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .brand-name span{color:var(--cyan);}
 .brand-ver{font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:1px;}
 .header-sep{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+.dive-in-btn{
+  background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);
+  border-radius:6px;padding:8px 16px;font-family:var(--font-mono);
+  font-size:11px;color:#00d4ff;cursor:pointer;transition:all 0.2s;
+  font-weight:600;letter-spacing:0.5px;margin-left:auto;
+}
+.dive-in-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+.dive-in-btn.secure-exit{
+  background:rgba(220,38,38,0.1);border-color:rgba(220,38,38,0.3);color:#dc2626;
+}
+.dive-in-btn.secure-exit:hover{background:rgba(220,38,38,0.2);border-color:#dc2626;}
 .header-meta{display:flex;align-items:center;gap:20px;font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);}
 .header-meta .lbl{color:var(--text-muted);margin-right:3px;}
 .header-meta .val{color:var(--text-primary);}
@@ -619,9 +630,9 @@ body.light body::before{ opacity:0.05; }
 
 /* ── Resize handle ── */
 .rb-resize-handle{
-  position:absolute;top:60px;bottom:0;left:380px;width:6px;
+  position:absolute;top:60px;bottom:0;left:380px;width:12px;
   background:transparent;cursor:ew-resize;z-index:100;
-  border-left:1px solid var(--border);
+  border-left:2px solid var(--border);
 }
 .rb-resize-handle:hover,.rb-resize-handle:active{
   background:var(--cyan);border-left-color:var(--cyan);
@@ -876,6 +887,9 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
       </div>
     </div>
     <div class="header-sep"></div>
+    <button id="dive-in-btn" class="dive-in-btn" onclick="handleDiveInClick()">
+      🔓 Dive In
+    </button>
     <div class="header-meta" id="hdr-meta">
       <span><span class="lbl">SUB</span><span class="val" id="hdr-sub">—</span></span>
       <span><span class="lbl">TENANT</span><span class="val" id="hdr-tenant">—</span></span>
@@ -965,8 +979,8 @@ textarea.rb-input{resize:vertical;min-height:56px;line-height:1.5;}
               <li><span class="lp-cap-icon">✓</span>No sidebar — straight to report builder &amp; export</li>
               <li><span class="lp-cap-icon">✓</span>Ideal for recurring client documentation</li>
             </ul>
-            <button class="lp-mode-btn" onclick="startQuickReport()">
-              📋 Generate Quick Report
+            <button class="lp-mode-btn" onclick="alert('Click the 🔓 Dive In button in the top-right corner to begin →')">
+              Click Dive In to Generate AVD Document
             </button>
           </div>
         </div>
@@ -5547,6 +5561,53 @@ function liveLogDone() {
   setTimeout(function(){ const bd=document.getElementById('live-debug-body'); if(bd) bd.style.display='none'; }, 10000);
 }
 
+// ── Secure Exit ────────────────────────────────────────────────
+let autoLogoutTimer = null;
+let isLoggedIn = false;
+
+function handleDiveInClick() {
+  if (isLoggedIn) {
+    secureExit();
+  } else {
+    startQuickReport();
+  }
+}
+
+function secureExit() {
+  if (confirm('Sign out and clear all session data?')) {
+    // Clear OAuth tokens
+    if (window.msalInstance) {
+      const accounts = window.msalInstance.getAllAccounts();
+      if (accounts.length > 0) {
+        window.msalInstance.logoutPopup({ account: accounts[0] }).catch(e => console.warn('Logout error:', e));
+      }
+    }
+    // Clear data
+    window.D = null;
+    isLoggedIn = false;
+    // Clear timer
+    if (autoLogoutTimer) clearTimeout(autoLogoutTimer);
+    // Reset button
+    const btn = document.getElementById('dive-in-btn');
+    if (btn) {
+      btn.textContent = '🔓 Dive In';
+      btn.classList.remove('secure-exit');
+    }
+    // Reset UI
+    document.getElementById('hdr-sub').textContent = '—';
+    document.getElementById('hdr-tenant').textContent = '—';
+    alert('Signed out securely.');
+  }
+}
+
+function startAutoLogoutTimer() {
+  if (autoLogoutTimer) clearTimeout(autoLogoutTimer);
+  autoLogoutTimer = setTimeout(() => {
+    alert('Session expired after 5 minutes of inactivity.');
+    secureExit();
+  }, 5 * 60 * 1000); // 5 minutes
+}
+
 async function startQuickReport() {
   const btn = document.querySelector('.mode-lite .lp-mode-btn');
   try {
@@ -5555,6 +5616,7 @@ async function startQuickReport() {
       qrMsalApp = new msal.PublicClientApplication(QR_MSAL_CONFIG);
       await qrMsalApp.initialize();
     }
+    window.msalInstance = qrMsalApp; // Store for secureExit
     const login = await qrMsalApp.loginPopup({
       scopes: ['https://management.azure.com/user_impersonation']
     });
@@ -5571,7 +5633,7 @@ async function startQuickReport() {
 
     if (!subs.length) {
       alert('No enabled subscriptions found.');
-      if (btn) { btn.disabled = false; btn.textContent = 'Generate Quick Report'; }
+      if (btn) { btn.disabled = false; btn.textContent = '🔓 Generate AVD Document'; }
       return;
     }
     qrShowSubPicker(subs, login.account.username);
@@ -6313,6 +6375,15 @@ async function qrCollect() {
     setTimeout(function() {
       document.getElementById('qr-progress').remove();
       initData(D_live);
+      // Change Dive In button to Secure Exit
+      isLoggedIn = true;
+      const btn = document.getElementById('dive-in-btn');
+      if (btn) {
+        btn.textContent = '🔒 Secure Exit';
+        btn.classList.add('secure-exit');
+      }
+      // Start auto-logout timer (5 minutes)
+      startAutoLogoutTimer();
       // Skip sidebar, go straight to report builder and auto-open
       $('sidebar').style.display = 'none';
       navTo('reportbuilder');
